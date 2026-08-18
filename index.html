@@ -1946,7 +1946,17 @@
     const el = e.target; const field = el.dataset.field; const id = Number(el.dataset.id);
     if (!field) return;
     const task = state.tasks.find(t => t.id === id); if (!task) return;
-    if (field === "predecessors") task.predecessors = parsePredInput(el.value);
+    if (field === "predecessors") {
+      const newPreds = parsePredInput(el.value);
+      // Dropping down to zero predecessors turns this into a root task, whose start is driven by
+      // leadDays instead of a predecessor's finish date. Without this, it would jump back to the
+      // project start date; instead, bank its current computed start so it stays right where it was.
+      if (newPreds.length === 0 && (task.predecessors || []).length > 0 && lastCompute) {
+        const prev = lastCompute.byId.get(task.id);
+        if (prev) task.leadDays = Math.max(0, prev.es);
+      }
+      task.predecessors = newPreds;
+    }
     else if (field === "duration") task.duration = Math.max(0, Number(el.value)||0);
     else if (field === "percent") task.percent = Math.min(100, Math.max(0, Number(el.value)||0));
     else if (field === "name") task.name = el.value;
