@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Millwood Homes — Critical Path Schedule</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --muted:          #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --good:           #0ca30c;
+    --warning:        #fab219;
+    --serious:        #ec835a;
+    --critical:       #d03b3b;
+    --series-1:       #2a78d6;
+    --violet:         #4a3aa7;
+    --weekend-tint:   rgba(137,135,129,0.14);
+    --holiday-tint:   rgba(208,59,59,0.12);
+    --today-line:     #0b0b0b;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --muted:          #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --good:           #0ca30c;
+    --warning:        #fab219;
+    --serious:        #ec835a;
+    --critical:       #e66767;
+    --series-1:       #3987e5;
+    --violet:         #9085e9;
+    --weekend-tint:   rgba(137,135,129,0.18);
+    --holiday-tint:   rgba(230,103,103,0.16);
+    --today-line:     #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1600px; margin: 0 auto; padding: 18px 22px 40px; }
+
+  /* ---------- header ---------- */
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .mark {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--series-1), var(--violet));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 15px; flex: none;
+  }
+  .brand h1 { font-size: 17px; margin: 0; font-weight: 700; }
+  .brand .sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+  .top-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .save-indicator { font-size: 11.5px; padding: 4px 9px; border-radius: 20px; white-space: nowrap; }
+  .save-indicator.clean { color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); }
+  .save-indicator.dirty { color: #b5790f; background: color-mix(in srgb, var(--warning) 20%, transparent); font-weight: 600; }
+  :root[data-theme="dark"] .save-indicator.dirty { color: var(--warning); }
+
+  button, .btn {
+    font: inherit; cursor: pointer; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--surface-1);
+    color: var(--text-primary); padding: 6px 11px; font-size: 12.5px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  button:hover { background: var(--gridline); }
+  button.primary { background: var(--series-1); color: #fff; border-color: transparent; }
+  button.primary:hover { filter: brightness(1.08); }
+  button.ghost { background: transparent; }
+  input, select {
+    font: inherit; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface-1); color: var(--text-primary); padding: 4px 7px;
+  }
+  label.field { display:flex; flex-direction:column; gap:2px; font-size: 11px; color: var(--text-secondary); }
+
+  /* ---------- stat tiles ---------- */
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
+  .tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .tile .label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .tile .value { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tile .value.critical-ink { color: var(--critical); }
+  .tile .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- toolbar ---------- */
+  .tabbar { display:flex; gap:6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .tabbar button {
+    border: none; border-bottom: 2px solid transparent; border-radius: 0; background: transparent;
+    padding: 8px 4px; font-size: 13.5px; font-weight: 600; color: var(--text-secondary); margin-right: 14px;
+  }
+  .tabbar button:hover { background: transparent; color: var(--text-primary); }
+  .tabbar button.active { color: var(--text-primary); border-bottom-color: var(--series-1); }
+
+  .subs-scroll { overflow: auto; max-height: 60vh; }
+  .subs-row {
+    display: flex; align-items: center; gap: 8px; padding: 5px 12px; border-bottom: 1px solid var(--gridline);
+  }
+  .subs-row:nth-child(even) { background: color-mix(in srgb, var(--surface-1) 92%, var(--muted) 8%); }
+  .subs-row.subs-header {
+    position: sticky; top:0; z-index:1; background: var(--surface-1); font-size: 11px; color: var(--muted);
+    border-bottom: 1px solid var(--border); font-weight:600;
+  }
+  .subs-row input { width: 100%; font-size: 12px; padding: 4px 6px; }
+  .sc-trade { width: 170px; flex:none; }
+  .sc-company { width: 190px; flex:none; }
+  .sc-contact { width: 150px; flex:none; }
+  .sc-phone { width: 140px; flex:none; }
+  .sc-email { width: 190px; flex:none; }
+  .sc-notes { flex: 1 1 auto; min-width: 120px; }
+  .sc-scope { width: 68px; flex:none; }
+  .sc-scope button { padding: 3px 7px; font-size: 11px; }
+  .sc-emailbtn { width: 84px; flex:none; }
+  .sc-emailbtn button { padding: 3px 7px; font-size: 11px; }
+  .sc-emailbtn button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .sc-initial { width: 110px; flex:none; white-space:nowrap; }
+  .sc-initial button { padding: 3px 7px; font-size: 11px; }
+  .sc-initial button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .sc-del { width: 24px; flex:none; }
+  .sc-del button { padding: 2px 5px; }
+  .col-company { width: 110px; flex: none; font-size: 11px; color: var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .col-company.empty { color: var(--muted); font-style: italic; }
+
+  /* ---------- budget tab ---------- */
+  .bg-id { width: 40px; flex:none; }
+  .bg-name { width: 220px; flex:none; }
+  .bg-trade { width: 160px; flex:none; }
+  .bg-cost { width: 120px; flex:none; }
+  .bg-cost input { width: 100%; }
+  .bg-var { width: 120px; flex:none; font-weight:600; font-variant-numeric: tabular-nums; }
+  .bg-var.over { color: var(--critical); }
+  .bg-var.under { color: var(--good); }
+  #budgetByTrade { padding: 4px 0 8px; }
+  .trade-row { display:flex; align-items:center; gap:8px; padding: 5px 12px; font-size:12px; border-bottom: 1px solid var(--gridline); }
+  .trade-row span { flex:none; }
+  .trade-row .tr-name { width: 220px; font-weight:600; }
+  .trade-row .tr-cost { width: 120px; font-variant-numeric: tabular-nums; }
+  .trade-row .tr-var { width: 120px; font-weight:600; font-variant-numeric: tabular-nums; }
+
+  /* ---------- change orders tab ---------- */
+  .co-id { width: 50px; flex:none; }
+  .co-date { width: 130px; flex:none; }
+  .co-desc { flex: 1 1 auto; min-width: 180px; }
+  .co-cost { width: 110px; flex:none; }
+  .co-cost input, .co-days input { width: 100%; }
+  .co-days { width: 100px; flex:none; }
+  .co-status { width: 110px; flex:none; }
+  .co-status select { width: 100%; }
+  .co-approved { width: 140px; flex:none; }
+  .co-notes { width: 160px; flex:none; }
+
+  .toolbar {
+    display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap;
+    gap: 10px; margin-bottom: 10px;
+  }
+  .toolbar .group { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+  .zoomgroup { display:flex; border:1px solid var(--border); border-radius:7px; overflow:hidden; }
+  .zoomgroup button { border: none; border-radius: 0; }
+  .zoomgroup button.active { background: var(--series-1); color: #fff; }
+
+  #errorBanner {
+    display:none; background: rgba(208,59,59,0.12); border:1px solid var(--critical);
+    color: var(--critical); padding: 8px 12px; border-radius: 8px; font-size: 12.5px; margin-bottom: 10px;
+  }
+
+  /* ---------- legend ---------- */
+  .legend { display:flex; flex-wrap:wrap; gap: 14px; align-items:center; margin-bottom: 10px; font-size: 11.5px; color: var(--text-secondary); }
+  .legend .item { display:flex; align-items:center; gap: 6px; }
+  .swatch { width: 14px; height: 10px; border-radius: 3px; flex:none; }
+  .swatch.diamond { width:10px; height:10px; border-radius:2px; transform: rotate(45deg); }
+  .swatch.tint { width:14px; height:14px; border-radius:3px; border:1px solid var(--border); }
+
+  /* ---------- gantt ---------- */
+  .panel {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden;
+  }
+  .gantt-scroll { overflow: auto; max-height: 68vh; position: relative; }
+  .gantt-header-row { display:flex; position: sticky; top:0; z-index: 5; }
+  .corner {
+    position: sticky; left:0; top:0; z-index: 7; background: var(--surface-1);
+    border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    display:flex; align-items:flex-end;
+  }
+  .corner .info-cols { display:flex; width:100%; font-size:10.5px; color: var(--muted); padding: 4px 6px; gap:4px; }
+  .corner .info-cols span { overflow:hidden; white-space:nowrap; flex:none; }
+  .axis { position: relative; background: var(--surface-1); border-bottom: 1px solid var(--border); flex: none; }
+  .axis .month-row, .axis .day-row { position: relative; height: 18px; }
+  .axis .month-lbl {
+    position: absolute; top:0; height:18px; display:flex; align-items:center;
+    padding-left: 4px; font-size: 11px; font-weight:600; color: var(--text-secondary);
+    border-left: 1px solid var(--gridline);
+  }
+  .axis .day-lbl {
+    position:absolute; top:0; height:18px; font-size:9.5px; color: var(--muted);
+    display:flex; align-items:center; justify-content:center; width: 1px;
+  }
+  .gantt-body { position: relative; }
+  .bg-layer { position:absolute; top:0; bottom:0; z-index:0; pointer-events:none; }
+  .bg-cell { position:absolute; top:0; bottom:0; }
+  .today-line { position:absolute; top:0; bottom:0; width:2px; background: var(--today-line); z-index:4; pointer-events:none; }
+  .today-line::after {
+    content:"today"; position:absolute; top:-16px; left:2px; font-size:9.5px; color: var(--today-line);
+    white-space:nowrap;
+  }
+  svg.deps { position:absolute; top:0; left:0; z-index:1; pointer-events:none; overflow:visible; }
+
+  .row { display:flex; position:relative; z-index:2; border-bottom: 1px solid var(--gridline); }
+  .row:nth-child(even) .row-info { background: color-mix(in srgb, var(--surface-1) 92%, var(--muted) 8%); }
+  .row-info {
+    position: sticky; left:0; z-index:3; background: var(--surface-1);
+    border-right: 1px solid var(--border); display:flex; align-items:center; gap: 4px;
+    padding: 3px 6px; flex: none;
+  }
+  .row-timeline { position: relative; flex: none; z-index:2; }
+
+  .row-info input[type=text], .row-info input[type=number] { padding: 3px 5px; font-size: 11.5px; }
+  .col-id { width: 28px; font-size: 10.5px; color: var(--muted); text-align:right; flex:none; }
+  .col-name { width: 168px; flex: none; }
+  .col-trade { width: 128px; flex: none; }
+  .col-dur { width: 40px; flex: none; }
+  .col-pred { width: 92px; flex: none; }
+  .col-status { width: 96px; flex: none; }
+  .col-pct { width: 48px; flex: none; }
+  .col-milestone { width: 26px; flex: none; text-align:center; }
+  .col-flag { width: 88px; flex: none; font-size: 11px; }
+  .col-flag.forced { border-color: var(--text-primary); font-weight: 600; box-shadow: 0 0 0 1px var(--text-primary); }
+  .col-float { width: 58px; flex: none; font-size: 10.5px; text-align:center; }
+  .col-del { width: 22px; flex: none; }
+  .col-del button { padding: 2px 5px; }
+
+  .float-badge { font-weight:600; }
+  .float-badge.crit { color: var(--critical); }
+  .float-badge.near { color: #b5790f; }
+  :root[data-theme="dark"] .float-badge.near { color: var(--warning); }
+  .float-badge.ok { color: var(--muted); }
+
+  .bar {
+    position: absolute; border-radius: 4px; height: 16px; top: 9px;
+    box-shadow: inset 0 0 0 1px var(--border);
+    cursor: grab; touch-action: none;
+  }
+  .bar:active, .bar.dragging { cursor: grabbing; box-shadow: 0 0 0 2px var(--text-primary); z-index: 3; }
+  .bar .fill-bg { position:absolute; inset:0; border-radius:4px; opacity: 0.55; }
+  .bar .fill-done { position:absolute; top:0; bottom:0; left:0; border-radius:4px; opacity: 1; }
+  .bar .bar-label {
+    position: absolute; left: 4px; top: 0; height: 16px; display:flex; align-items:center;
+    font-size: 10px; color:#fff; white-space:nowrap; z-index:2; text-shadow: 0 1px 1px rgba(0,0,0,0.35);
+  }
+  .milestone {
+    position:absolute; width:14px; height:14px; top:8px; transform: translateX(-7px) rotate(45deg);
+    border-radius: 3px; box-shadow: inset 0 0 0 1px var(--border);
+    cursor: grab; touch-action: none;
+  }
+  .milestone:active, .milestone.dragging { cursor: grabbing; box-shadow: 0 0 0 2px var(--text-primary); z-index: 3; }
+  .milestone.done::after { content:"✓"; }
+  .bar-ghost {
+    position:absolute; height:16px; top:9px; border-radius:4px;
+    border: 1.5px dashed var(--muted); background: transparent; pointer-events:none; z-index:1;
+  }
+  .milestone-ghost {
+    position:absolute; width:14px; height:14px; top:8px; transform: translateX(-7px) rotate(45deg);
+    border-radius:3px; border: 1.5px dashed var(--muted); background: transparent; pointer-events:none; z-index:1;
+  }
+  .drag-tip {
+    position: fixed; z-index: 50; pointer-events: none; background: var(--text-primary); color: var(--surface-1);
+    font-size: 11.5px; padding: 5px 9px; border-radius: 6px; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transform: translate(-50%, -130%);
+  }
+  body.is-dragging { user-select: none; }
+
+  .add-row {
+    display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; padding: 12px;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; margin-top: 12px;
+  }
+  .add-row label.field input, .add-row label.field select { min-width: 90px; }
+  .hint { font-size: 10.5px; color: var(--muted); max-width: 160px; }
+
+  footer.note { font-size: 11px; color: var(--muted); margin-top: 14px; line-height:1.6; }
+  a.plain { color: var(--series-1); }
+  .tag { font-size:10px; padding:1px 6px; border-radius:20px; background: var(--gridline); color: var(--text-secondary); }
+
+  /* ---------- modal ---------- */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; background: rgba(0,0,0,0.45); z-index: 100;
+    align-items:center; justify-content:center; padding: 20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal-box {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; width: 100%; max-width: 480px; max-height: 85vh; overflow:auto;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  }
+  .modal-box h3 { margin: 0 0 4px; font-size: 15px; }
+  .modal-box .modal-sub { font-size: 11.5px; color: var(--muted); margin-bottom: 14px; line-height:1.5; }
+  .modal-box label.field { margin-bottom: 10px; }
+  .modal-box label.field input, .modal-box label.field textarea { width: 100%; font: inherit; }
+  .modal-box textarea { resize: vertical; min-height: 90px; padding: 6px 8px; }
+  .modal-actions { display:flex; justify-content:flex-end; gap: 8px; margin-top: 16px; }
+  .modal-hint { font-size: 11px; color: var(--muted); background: color-mix(in srgb, var(--warning) 12%, transparent); border: 1px solid var(--warning); border-radius: 6px; padding: 6px 9px; margin: 10px 0; line-height:1.5; }
+  .stepper-progress { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; }
+  .stepper-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+  .stepper-card .st-trade { font-weight:700; font-size: 14px; }
+  .stepper-card .st-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .sent-check { color: var(--good); font-size: 11px; margin-left: 4px; }
+</style>
+</head>
+<body>
+<datalist id="tradesDatalist"></datalist>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark">MH</div>
+      <div>
+        <h1>Millwood Homes — Critical Path Schedule</h1>
+        <div class="sub">Residential new-construction scheduling dashboard</div>
+      </div>
+    </div>
+    <div class="top-controls">
+      <label class="field">Project start
+        <input type="date" id="startDateInput" />
+      </label>
+      <label class="field">Near-critical ≤
+        <input type="number" id="thresholdInput" min="0" max="30" style="width:52px" />
+      </label>
+      <button id="themeToggle" title="Toggle dark mode">🌓 Theme</button>
+      <span id="saveIndicator" class="save-indicator clean">✓ Saved to file</span>
+      <button id="exportBtn">⬇ Export JSON</button>
+      <button id="importBtn">⬆ Import JSON</button>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none" />
+    </div>
+  </header>
+
+  <div class="toolbar" id="projectSwitcherRow" style="margin-bottom:12px;">
+    <div class="group">
+      <label class="field">Project
+        <select id="projectSelect" style="min-width:200px"></select>
+      </label>
+      <button id="newProjectBtn" title="Start a new house schedule">+ New project</button>
+      <button id="duplicateProjectBtn" title="Duplicate the current project">⧉ Duplicate</button>
+      <button id="renameProjectBtn" title="Rename the current project">✎ Rename</button>
+      <button id="deleteProjectBtn" title="Delete the current project" class="ghost">🗑 Delete</button>
+      <button id="projectInfoBtn" class="ghost" title="Set your contact info and a plans link — used in emails to subs">☎ Contact &amp; plans link</button>
+    </div>
+  </div>
+
+  <div class="tabbar" id="tabBar">
+    <button data-tab="schedule" class="active">📅 Schedule</button>
+    <button data-tab="subs">🛠 Subcontractors</button>
+    <button data-tab="budget">💲 Budget</button>
+    <button data-tab="changeorders">📝 Change Orders</button>
+  </div>
+
+  <div id="tab-schedule">
+
+  <div id="errorBanner"></div>
+
+  <div class="stats" id="statsRow"></div>
+
+  <div class="toolbar">
+    <div class="group">
+      <div class="zoomgroup" id="zoomGroup">
+        <button data-zoom="month">Month</button>
+        <button data-zoom="week" class="active">Week</button>
+        <button data-zoom="day">Day</button>
+      </div>
+      <label class="field" style="flex-direction:row; align-items:center; gap:6px;">
+        <input type="checkbox" id="depToggle" checked style="width:auto;" />
+        <span>Show dependency lines</span>
+      </label>
+    </div>
+    <div class="group">
+      <button id="setBaselineBtn" class="ghost" title="Snapshot the current planned dates so you can see drift later">📌 Set baseline</button>
+      <button id="clearBaselineBtn" class="ghost" style="display:none">✕ Clear baseline</button>
+      <button id="sampleBtn" class="ghost">Reset to sample schedule</button>
+      <button id="clearBtn" class="ghost">Clear all tasks</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="item"><span class="swatch" style="background:var(--critical)"></span>Critical path (0 float)</div>
+    <div class="item"><span class="swatch" style="background:var(--warning)"></span>Near-critical ⚠</div>
+    <div class="item"><span class="swatch" style="background:var(--series-1)"></span>Normal task</div>
+    <div class="item"><span class="swatch" style="background:var(--good)"></span>✓ Done / completed portion</div>
+    <div class="item"><span class="swatch diamond" style="background:var(--violet)"></span>Milestone</div>
+    <div class="item"><span class="swatch tint" style="background:var(--weekend-tint)"></span>Weekend</div>
+    <div class="item"><span class="swatch tint" style="background:var(--holiday-tint)"></span>Holiday</div>
+    <div class="item">📌 = manually pinned status (see the <b>Flag</b> column)</div>
+    <div class="item"><span class="swatch" style="background:transparent;border:1.5px dashed var(--muted)"></span>Baseline (originally planned dates)</div>
+    <div class="item" style="font-weight:600">🖱 Drag any bar or milestone to reschedule it — dependent tasks shift with it</div>
+  </div>
+
+  <div class="panel">
+    <div class="gantt-scroll" id="ganttScroll">
+      <div class="gantt-header-row" id="ganttHeaderRow"></div>
+      <div class="gantt-body" id="ganttBody"></div>
+    </div>
+  </div>
+
+  <div class="add-row">
+    <label class="field">Task name<input type="text" id="newName" placeholder="e.g. Gutter Install" style="width:180px" /></label>
+    <label class="field">Trade / Sub<input type="text" id="newTrade" placeholder="e.g. Gutter Contractor" style="width:140px" /></label>
+    <label class="field">Duration (work days)<input type="number" id="newDuration" min="0" value="1" style="width:70px" /></label>
+    <label class="field">Predecessors<input type="text" id="newPred" placeholder="e.g. 15, 24:2" style="width:110px" /></label>
+    <label class="field" style="flex-direction:row; align-items:center; gap:6px;">
+      <input type="checkbox" id="newMilestone" style="width:auto;" /><span>Milestone</span>
+    </label>
+    <button id="addTaskBtn" class="primary">+ Add task</button>
+    <span class="hint">Predecessors: comma-separated task IDs. Add "<b>:N</b>" for an N work-day lag (e.g. offsite fabrication).</span>
+  </div>
+
+  <footer class="note">
+    Durations are in working days (federal holidays + weekends auto-skipped, shown shaded above). Drag a bar/milestone left or right on the
+    chart to reschedule it — its dependents recalculate live as you drag (press <b>Esc</b> to cancel a drag). A task with predecessors can't be
+    dragged earlier than they allow; it will stop at the earliest feasible date. Your work <b>autosaves to this browser</b> automatically
+    (the indicator up top shows autosave status) — closing the tab or reloading won't lose anything.
+    <br>Autosave only lives in this browser on this device, though. Use <b>Export JSON</b> whenever you want a portable backup, or to carry
+    the schedule to your phone, another computer, or a synced folder (Dropbox, Google Drive, OneDrive, iCloud Drive). Since Export always uses the
+    same filename, re-exporting after edits overwrites the same file rather than piling up copies (if your browser asks where to
+    save, just choose "Replace"). Use <b>Import JSON</b> to load a schedule from a file, which will also replace what's autosaved here.
+  </footer>
+
+  </div><!-- /tab-schedule -->
+
+  <div id="tab-subs" style="display:none">
+    <div class="toolbar" style="margin-bottom:10px;">
+      <p class="hint" style="max-width:520px; margin:0;">
+        Keep basic contact info for each trade here. When a task's <b>Trade</b> field on the Schedule tab matches a Trade name below
+        (case-insensitive), that task automatically shows the assigned company name — no need to retype it per task.
+      </p>
+      <button id="sendInitialSeqBtn" class="primary">📨 Send initial emails</button>
+    </div>
+    <div class="panel">
+      <div class="subs-scroll" id="subsScroll">
+        <div class="subs-row subs-header">
+          <span class="sc-trade">Trade</span>
+          <span class="sc-company">Company name</span>
+          <span class="sc-contact">Contact</span>
+          <span class="sc-phone">Phone</span>
+          <span class="sc-email">Email</span>
+          <span class="sc-notes">Notes</span>
+          <span class="sc-scope"></span>
+          <span class="sc-emailbtn"></span>
+          <span class="sc-initial"></span>
+          <span class="sc-del"></span>
+        </div>
+        <div id="subsBody"></div>
+      </div>
+    </div>
+
+    <div class="add-row">
+      <label class="field">Trade<input type="text" id="newSubTrade" placeholder="e.g. Framing Crew" style="width:150px" /></label>
+      <label class="field">Company name<input type="text" id="newSubCompany" placeholder="e.g. ABC Framing LLC" style="width:170px" /></label>
+      <label class="field">Contact<input type="text" id="newSubContact" placeholder="e.g. Dave Smith" style="width:130px" /></label>
+      <label class="field">Phone<input type="text" id="newSubPhone" placeholder="e.g. (555) 123-4567" style="width:130px" /></label>
+      <label class="field">Email<input type="text" id="newSubEmail" placeholder="e.g. dave@abcframing.com" style="width:170px" /></label>
+      <button id="addSubBtn" class="primary">+ Add trade</button>
+    </div>
+
+    <footer class="note">
+      This list is saved and reloaded together with your schedule via <b>Export JSON</b> / <b>Import JSON</b> on the Schedule tab.
+      Use the <b>✉ Email</b> button next to a trade to open a pre-filled email in your own email app listing that trade's
+      current tasks and dates — nothing is sent automatically, it just saves you writing it out.
+    </footer>
+  </div><!-- /tab-subs -->
+
+  <div id="tab-budget" style="display:none">
+    <div class="stats" id="budgetStatsRow"></div>
+    <div class="panel">
+      <div class="subs-scroll" id="budgetScroll">
+        <div class="subs-row subs-header">
+          <span class="bg-id">#</span>
+          <span class="bg-name">Task</span>
+          <span class="bg-trade">Trade</span>
+          <span class="bg-cost">Est. cost</span>
+          <span class="bg-cost">Actual cost</span>
+          <span class="bg-var">Variance</span>
+        </div>
+        <div id="budgetBody"></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px;">
+      <div style="padding:10px 12px; font-weight:600; font-size:12.5px; border-bottom:1px solid var(--border);">By trade</div>
+      <div id="budgetByTrade"></div>
+    </div>
+    <footer class="note">
+      Estimated and actual cost are tracked per task here and roll up into the totals above — this is a running job-cost view, not
+      a full accounting system. It's saved and reloaded together with your schedule via <b>Export JSON</b> / <b>Import JSON</b>.
+    </footer>
+  </div><!-- /tab-budget -->
+
+  <div id="tab-changeorders" style="display:none">
+    <div class="stats" id="coStatsRow"></div>
+    <div class="panel">
+      <div class="subs-scroll" id="coScroll">
+        <div class="subs-row subs-header">
+          <span class="co-id">CO #</span>
+          <span class="co-date">Date</span>
+          <span class="co-desc">Description</span>
+          <span class="co-cost">Cost impact</span>
+          <span class="co-days">Schedule impact</span>
+          <span class="co-status">Status</span>
+          <span class="co-approved">Approved by</span>
+          <span class="co-notes">Notes</span>
+          <span class="sc-del"></span>
+        </div>
+        <div id="coBody"></div>
+      </div>
+    </div>
+    <div class="add-row">
+      <label class="field">Date<input type="date" id="newCODate" /></label>
+      <label class="field">Description<input type="text" id="newCODesc" placeholder="e.g. Upgrade to quartz counters" style="width:220px" /></label>
+      <label class="field">Cost impact ($)<input type="number" id="newCOCost" placeholder="e.g. 1200 or -300" style="width:110px" /></label>
+      <label class="field">Schedule impact (days)<input type="number" id="newCODays" placeholder="e.g. 3" style="width:110px" /></label>
+      <label class="field">Status
+        <select id="newCOStatus"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
+      </label>
+      <button id="addCOBtn" class="primary">+ Add change order</button>
+    </div>
+    <footer class="note">
+      This is a log, not an auto-scheduler — approving a change order here records its cost/schedule impact, but you'll still
+      need to adjust the relevant task's duration or dates on the Schedule tab yourself if it affects the timeline.
+    </footer>
+  </div><!-- /tab-changeorders -->
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============ date / calendar utilities ============ */
+  function isWeekend(d) { const day = d.getUTCDay(); return day === 0 || day === 6; }
+  function toISO(d) { return d.toISOString().slice(0, 10); }
+  function parseISO(s) { const [y,m,d] = s.split("-").map(Number); return new Date(Date.UTC(y, m-1, d)); }
+  function addCalDays(d, n) { return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()+n)); }
+  function nthWeekdayOfMonth(year, month, weekday, n) {
+    let d = new Date(Date.UTC(year, month, 1)), count = 0;
+    while (true) {
+      if (d.getUTCDay() === weekday) { count++; if (count === n) return d; }
+      d = addCalDays(d, 1);
+    }
+  }
+  function lastWeekdayOfMonth(year, month, weekday) {
+    let d = new Date(Date.UTC(year, month+1, 0));
+    while (d.getUTCDay() !== weekday) d = addCalDays(d, -1);
+    return d;
+  }
+  function observedDate(d) {
+    const day = d.getUTCDay();
+    if (day === 6) return addCalDays(d, -1);
+    if (day === 0) return addCalDays(d, 1);
+    return d;
+  }
+  function federalHolidays(year) {
+    return [
+      { name: "New Year's Day",   date: observedDate(new Date(Date.UTC(year,0,1))) },
+      { name: "MLK Day",          date: nthWeekdayOfMonth(year,0,1,3) },
+      { name: "Presidents Day",   date: nthWeekdayOfMonth(year,1,1,3) },
+      { name: "Memorial Day",     date: lastWeekdayOfMonth(year,4,1) },
+      { name: "Juneteenth",       date: observedDate(new Date(Date.UTC(year,5,19))) },
+      { name: "Independence Day", date: observedDate(new Date(Date.UTC(year,6,4))) },
+      { name: "Labor Day",        date: nthWeekdayOfMonth(year,8,1,1) },
+      { name: "Columbus Day",     date: nthWeekdayOfMonth(year,9,1,2) },
+      { name: "Veterans Day",     date: observedDate(new Date(Date.UTC(year,10,11))) },
+      { name: "Thanksgiving",     date: nthWeekdayOfMonth(year,10,4,4) },
+      { name: "Christmas",        date: observedDate(new Date(Date.UTC(year,11,25))) },
+    ];
+  }
+  function buildHolidayMap(startYear, span) {
+    const map = new Map();
+    for (let y = startYear - 1; y <= startYear + span; y++) {
+      for (const h of federalHolidays(y)) map.set(toISO(h.date), h.name);
+    }
+    return map;
+  }
+  function buildWorkingDays(rawStart, horizonDays, holidayMap) {
+    const days = [];
+    let d = new Date(rawStart);
+    for (let i = 0; i < horizonDays; i++) {
+      const iso = toISO(d);
+      if (!isWeekend(d) && !holidayMap.has(iso)) days.push({ date: new Date(d), iso });
+      d = addCalDays(d, 1);
+    }
+    return days;
+  }
+
+  /* ============ CPM engine ============ */
+  function runCPM(tasks, workingDays) {
+    const ES = new Map(), EF = new Map(), drivers = new Map();
+    const resolved = new Set();
+    let guard = 0;
+    while (resolved.size < tasks.length) {
+      let progressed = false;
+      for (const t of tasks) {
+        if (resolved.has(t.id)) continue;
+        const preds = (t.predecessors || []).filter(p => p.id !== t.id);
+        if (preds.every(p => resolved.has(p.id))) {
+          let es = preds.length === 0 ? Math.max(0, t.leadDays || 0) : 0, drv = [];
+          for (const p of preds) {
+            const cand = EF.get(p.id) + 1 + (p.lag || 0);
+            if (cand > es) { es = cand; drv = [p.id]; }
+            else if (cand === es) drv.push(p.id);
+          }
+          const dur = Math.max(0, t.duration || 0);
+          const ef = dur > 0 ? es + dur - 1 : es;
+          ES.set(t.id, es); EF.set(t.id, ef); drivers.set(t.id, drv);
+          resolved.add(t.id); progressed = true;
+        }
+      }
+      guard++;
+      if (!progressed) {
+        const stuck = tasks.filter(t => !resolved.has(t.id)).map(t => t.id);
+        return { error: "Circular or missing dependency detected involving task ID(s): " + stuck.join(", ") };
+      }
+      if (guard > tasks.length + 5) return { error: "Could not resolve schedule (dependency error)." };
+    }
+    if (tasks.length === 0) return { results: [], projectFinish: -1, drivers };
+    const projectFinish = Math.max(...tasks.map(t => EF.get(t.id)));
+    const successors = new Map(tasks.map(t => [t.id, []]));
+    for (const t of tasks) for (const p of (t.predecessors||[])) {
+      if (successors.has(p.id)) successors.get(p.id).push({ id: t.id, lag: p.lag||0 });
+    }
+    const LF = new Map(), LS = new Map(), doneLF = new Set();
+    guard = 0;
+    while (doneLF.size < tasks.length) {
+      let progressed = false;
+      for (const t of tasks) {
+        if (doneLF.has(t.id)) continue;
+        const succs = successors.get(t.id);
+        if (succs.every(s => doneLF.has(s.id))) {
+          let lf = succs.length === 0 ? projectFinish : Math.min(...succs.map(s => LS.get(s.id) - 1 - s.lag));
+          const dur = Math.max(0, t.duration || 0);
+          const ls = dur > 0 ? lf - dur + 1 : lf;
+          LF.set(t.id, lf); LS.set(t.id, ls); doneLF.add(t.id); progressed = true;
+        }
+      }
+      guard++;
+      if (!progressed || guard > tasks.length + 5) break;
+    }
+    const results = tasks.map(t => {
+      const es = ES.get(t.id), ef = EF.get(t.id), ls = LS.get(t.id), lf = LF.get(t.id);
+      const clampES = Math.min(es, workingDays.length - 1);
+      const clampEF = Math.min(ef, workingDays.length - 1);
+      return {
+        id: t.id, es, ef, ls, lf, float: ls - es,
+        startDate: workingDays[clampES] ? workingDays[clampES].iso : null,
+        endDate: workingDays[clampEF] ? workingDays[clampEF].iso : null,
+        drivers: drivers.get(t.id) || [],
+      };
+    });
+    return { results, projectFinish };
+  }
+
+  /* ============ default sample dataset ============ */
+  function T(id, name, trade, duration, predecessors, milestone, forceStatus) {
+    return { id, name, trade, duration, predecessors: predecessors||[], milestone: !!milestone, status: "not-started", percent: 0, leadDays: 0, forceStatus: forceStatus || null, estCost: 0, actualCost: 0 };
+  }
+  function sampleTasks() {
+    // Sam's compiled 13-phase task list. Every task carries a forced status ("critical"/"near"/"normal")
+    // matching the label Sam gave it, via the Flag column's manual-override mechanism — so what's shown
+    // always matches Sam's call, regardless of what the float math alone would say. Switch any task back
+    // to "Auto" on the Flag column to see its computed status instead.
+    return [
+      // ===== Phase 1: Pre-Construction & Planning =====
+      T(1,"Site selection / land purchase","Owner / Buyer",5,[],false,"normal"),
+      T(2,"Soil / percolation test","Soil Testing Contractor",2,[{id:1}],false,"critical"),
+      T(3,"Boundary & topographic survey","Surveyor",3,[{id:1}],false,"critical"),
+      T(4,"Architectural design / construction drawings","Architect",20,[{id:2},{id:3}],false,"critical"),
+      T(5,"Structural engineering (if required)","Structural Engineer",5,[{id:4}],false,"critical"),
+      T(6,"Energy code compliance docs (Manual J/D/S, HERS)","Energy Consultant",3,[{id:4}],false,"near"),
+      T(7,"Building permit application & approval","Permitting / Architect",20,[{id:5},{id:6},{id:8}],false,"critical"),
+      T(8,"Zoning approval / variance (if required)","General Contractor",10,[{id:4}],false,"critical"),
+      T(9,"Septic system design & permit (if not on sewer)","Septic Contractor",10,[{id:2}],false,"critical"),
+      T(10,"Well permit / water source approval (if not on public water)","Well Drilling Contractor",10,[{id:2}],false,"critical"),
+      T(11,"Construction loan / financing closing","Lender",5,[{id:7}],false,"critical"),
+      T(12,"Builder's risk & liability insurance bound","Insurance Agent",2,[{id:11}],false,"near"),
+      T(13,"Subcontractor bidding & selection","General Contractor",10,[{id:4}],false,"normal"),
+      T(14,"Order long-lead items (trusses, windows, custom cabinets, garage doors)","General Contractor",5,[{id:13}],false,"critical"),
+      // ===== Phase 2: Site Work & Utilities =====
+      T(15,"Site mobilization (temp power, toilet, dumpster, signage)","General Contractor",2,[{id:7},{id:11},{id:12}],false,"near"),
+      T(16,"Erosion control / silt fencing","Excavation Contractor",1,[{id:15}],false,"critical"),
+      T(17,"Tree / land clearing","Excavation Contractor",3,[{id:16}],false,"critical"),
+      T(18,"Rough grading","Excavation Contractor",3,[{id:17}],false,"critical"),
+      T(19,"Temporary construction access / driveway","Excavation Contractor",2,[{id:18}],false,"normal"),
+      T(20,"Excavation for foundation","Excavation Contractor",3,[{id:18}],false,"critical"),
+      T(21,"Utility trenching (water, sewer, electric service)","Utility Contractor",3,[{id:18}],false,"near"),
+      T(22,"Septic system installation (if applicable)","Septic Contractor",3,[{id:9},{id:20}],false,"critical"),
+      T(23,"Well drilling (if applicable)","Well Drilling Contractor",3,[{id:10},{id:18}],false,"near"),
+      // ===== Phase 3: Foundation =====
+      T(24,"Foundation layout / stakeout","Surveyor",1,[{id:20}],false,"critical"),
+      T(25,"Footing excavation","Excavation Contractor",2,[{id:24}],false,"critical"),
+      T(26,"Footing forms & rebar","Concrete Contractor",2,[{id:25}],false,"critical"),
+      T(27,"Footing inspection","Building Inspector",0,[{id:26}],true,"critical"),
+      T(28,"Pour footings","Concrete Contractor",1,[{id:27}],false,"critical"),
+      T(29,"Foundation walls / stem walls (form & pour, or block)","Concrete Contractor",5,[{id:28}],false,"critical"),
+      T(30,"Foundation inspection","Building Inspector",0,[{id:29}],true,"critical"),
+      T(31,"Waterproofing / damp-proofing","Concrete Contractor",2,[{id:30}],false,"critical"),
+      T(32,"Foundation drainage (French drain / gravel)","Excavation Contractor",2,[{id:31}],false,"near"),
+      T(33,"Backfill","Excavation Contractor",2,[{id:32}],false,"critical"),
+      T(34,"Termite pre-treatment","Pest Control",1,[{id:33}],false,"near"),
+      T(35,"Slab prep (vapor barrier, gravel, mesh/rebar)","Concrete Contractor",2,[{id:34}],false,"critical"),
+      T(36,"Under-slab plumbing rough-in","Plumber",2,[{id:35}],false,"critical"),
+      T(37,"Pour slab","Concrete Contractor",2,[{id:36}],false,"critical"),
+      // ===== Phase 4: Framing & Dry-In =====
+      T(38,"Sill plate / mudsill installation","Framing Crew",1,[{id:37}],false,"critical"),
+      T(39,"Floor framing / joists","Framing Crew",3,[{id:38}],false,"critical"),
+      T(40,"Subfloor installation","Framing Crew",2,[{id:39}],false,"critical"),
+      T(41,"Wall framing (exterior & interior)","Framing Crew",5,[{id:40}],false,"critical"),
+      T(42,"Wall sheathing","Framing Crew",2,[{id:41}],false,"critical"),
+      T(43,"Roof framing / truss set","Framing Crew",4,[{id:42},{id:14}],false,"critical"),
+      T(44,"Roof sheathing","Framing Crew",3,[{id:43}],false,"critical"),
+      T(45,"Framing inspection","Building Inspector",0,[{id:44}],true,"critical"),
+      T(46,"House wrap / weather-resistive barrier","Framing Crew",2,[{id:45}],false,"critical"),
+      T(47,"Windows & exterior doors set (dry-in)","Framing Crew",3,[{id:46},{id:14}],false,"critical"),
+      // ===== Phase 5: Roofing =====
+      T(48,"Roof underlayment","Roofing Contractor",1,[{id:44}],false,"critical"),
+      T(49,"Roofing material installation (shingle / metal / tile)","Roofing Contractor",4,[{id:48}],false,"critical"),
+      T(50,"Roof flashing, vents, penetrations","Roofing Contractor",1,[{id:49}],false,"critical"),
+      T(51,"Gutters (rough or final)","Gutter Contractor",1,[{id:50}],false,"normal"),
+      // ===== Phase 6: MEP Rough-In =====
+      T(52,"Plumbing rough-in (supply/DWV, tub & shower set)","Plumber",5,[{id:47}],false,"critical"),
+      T(53,"Electrical rough-in (wiring, panel set)","Electrician",5,[{id:47}],false,"critical"),
+      T(54,"HVAC rough-in (ductwork, line sets, equipment set)","HVAC Contractor",5,[{id:47}],false,"critical"),
+      T(55,"Low-voltage rough-in (data, security, A/V)","Low-Voltage Contractor",2,[{id:47}],false,"normal"),
+      T(56,"Fireplace / chimney rough-in","Fireplace Installer",2,[{id:47}],false,"normal"),
+      T(57,"Rough-in inspections (plumbing, electrical, mechanical)","Building Inspector",0,[{id:52},{id:53},{id:54}],true,"critical"),
+      // ===== Phase 7: Insulation & Air Sealing =====
+      T(58,"Exterior flashing / sealant details completed","Siding Contractor",2,[{id:47},{id:50}],false,"near"),
+      T(59,"Insulation installation (batt / blown / spray foam)","Insulation Contractor",3,[{id:57},{id:58}],false,"critical"),
+      T(60,"Air sealing","Insulation Contractor",1,[{id:59}],false,"near"),
+      T(61,"Insulation inspection","Building Inspector",0,[{id:60}],true,"critical"),
+      // ===== Phase 8: Drywall =====
+      T(62,"Drywall hang","Drywall Contractor",5,[{id:61}],false,"critical"),
+      T(63,"Drywall tape & mud (multiple coats)","Drywall Contractor",5,[{id:62}],false,"critical"),
+      T(64,"Drywall texture","Drywall Contractor",2,[{id:63}],false,"critical"),
+      T(65,"Sand & prime/seal coat","Drywall Contractor",2,[{id:64}],false,"critical"),
+      // ===== Phase 9: Exterior Finishes =====
+      T(66,"Siding installation","Siding Contractor",6,[{id:58}],false,"near"),
+      T(67,"Exterior trim (fascia, corner boards)","Siding Contractor",3,[{id:66}],false,"near"),
+      T(68,"Soffit & fascia","Siding Contractor",2,[{id:66}],false,"near"),
+      T(69,"Exterior masonry / stone veneer","Masonry Contractor",4,[{id:66}],false,"normal"),
+      T(70,"Exterior painting / staining","Painting Contractor",3,[{id:67},{id:68},{id:69}],false,"normal"),
+      T(71,"Garage door installation","Garage Door Installer",1,[{id:66}],false,"normal"),
+      T(72,"Driveway / walkway concrete","Concrete Contractor",3,[{id:70}],false,"normal"),
+      // ===== Phase 10: Interior Finishes =====
+      T(81,"Tile work (baths, backsplash)","Tile Contractor",5,[{id:65}],false,"critical"),
+      T(79,"Interior painting (walls, ceilings, trim)","Painting Contractor",5,[{id:81}],false,"critical"),
+      T(73,"Interior trim (door/window casing, baseboard)","Trim Carpenter",5,[{id:79}],false,"critical"),
+      T(74,"Interior door hanging","Trim Carpenter",3,[{id:73}],false,"critical"),
+      T(75,"Stair rails / balusters","Trim Carpenter",2,[{id:73}],false,"near"),
+      T(76,"Cabinet installation","Cabinet Installer",4,[{id:73}],false,"critical"),
+      T(77,"Countertop templating","Countertop Fabricator",1,[{id:76}],false,"critical"),
+      T(78,"Countertop fabrication & installation","Countertop Fabricator",1,[{id:77,lag:5}],false,"critical"),
+      T(80,"Flooring installation (hardwood/tile/LVP/carpet)","Flooring Contractor",5,[{id:73}],false,"critical"),
+      // ===== Phase 11: MEP Trim-Out & Fixtures =====
+      T(82,"Plumbing fixture trim-out (sinks, toilets, faucets, tub/shower)","Plumber",3,[{id:78},{id:80}],false,"critical"),
+      T(83,"Electrical trim-out (devices, switches, fixtures)","Electrician",3,[{id:80}],false,"critical"),
+      T(84,"HVAC trim-out (registers, grilles, thermostat, startup)","HVAC Contractor",2,[{id:80}],false,"critical"),
+      T(85,"Low-voltage device / equipment installation","Low-Voltage Contractor",2,[{id:80},{id:55}],false,"normal"),
+      T(86,"Appliance installation","Appliance Installer",1,[{id:82}],false,"near"),
+      // ===== Phase 12: Final Site Work & Landscaping =====
+      T(87,"Final grading","Landscaper",2,[{id:72}],false,"near"),
+      T(88,"Landscaping / sod / planting","Landscaper",4,[{id:87}],false,"normal"),
+      T(89,"Final hardscape (patios, walkways not done earlier)","Landscaper",3,[{id:87}],false,"normal"),
+      T(90,"Gutters (final, if deferred)","Gutter Contractor",1,[{id:70}],false,"normal"),
+      T(91,"Exterior lighting finalization","Electrician",1,[{id:83}],false,"normal"),
+      // ===== Phase 13: Closeout & Occupancy =====
+      T(92,"Final construction cleaning","Cleaning Crew",2,[{id:82},{id:83},{id:84},{id:85},{id:86},{id:88},{id:89},{id:90},{id:91}],false,"near"),
+      T(93,"Punch list walkthrough","General Contractor",0,[{id:92}],true,"critical"),
+      T(94,"Punch list corrections","General Contractor",3,[{id:93}],false,"critical"),
+      T(95,"Final inspections (building, electrical, plumbing, mechanical)","Building Inspector",0,[{id:94}],true,"critical"),
+      T(96,"Certificate of Occupancy issued","City / County",0,[{id:95}],true,"critical"),
+      T(97,"Final owner/buyer walkthrough","General Contractor",0,[{id:96}],true,"critical"),
+      T(98,"Closing / move-in","Title Company",0,[{id:97}],true,"critical"),
+    ];
+  }
+
+  /* ============ subcontractor directory ============ */
+  function S(id, trade, company, contact, phone, email, notes, scopeOfWork, initialEmailSentAt) {
+    return { id, trade, company: company||"", contact: contact||"", phone: phone||"", email: email||"", notes: notes||"",
+      scopeOfWork: scopeOfWork||"", initialEmailSentAt: initialEmailSentAt||null };
+  }
+  function sampleSubs(tasks) {
+    const seen = new Set(), out = [];
+    let id = 1;
+    for (const t of tasks) {
+      const trade = (t.trade || "").trim();
+      if (!trade || seen.has(trade.toLowerCase())) continue;
+      seen.add(trade.toLowerCase());
+      out.push(S(id++, trade));
+    }
+    return out;
+  }
+  function lookupCompany(subs, tradeStr) {
+    const t = (tradeStr || "").trim().toLowerCase();
+    if (!t) return "";
+    const match = subs.find(s => (s.trade || "").trim().toLowerCase() === t);
+    return match ? match.company : "";
+  }
+
+  /* ============ change orders ============ */
+  function CO(id, date, description, costImpact, scheduleImpactDays, status, approvedBy, notes) {
+    return { id, date: date || toISO(new Date()), description: description||"", costImpact: costImpact||0,
+      scheduleImpactDays: scheduleImpactDays||0, status: status||"pending", approvedBy: approvedBy||"", notes: notes||"" };
+  }
+
+  /* ============ multi-project scaffold ============
+     The "active" project's live data lives in the flattened state.* fields below (tasks, subs,
+     startDate, etc.) so the rest of the app can keep reading/writing state.tasks directly without
+     a rewrite. state.projects holds saved snapshots of every OTHER (inactive) project; switching
+     projects flushes the active fields into state.projects, then loads the target project's fields
+     back into the flattened slots. */
+  function freshProject(id, name, useSample) {
+    const tasks = useSample ? sampleTasks() : [];
+    const subs = useSample ? sampleSubs(tasks) : [];
+    return {
+      id, name: name || "Untitled Project",
+      startDate: toISO(new Date()), threshold: 3,
+      tasks, nextId: useSample ? 99 : 1,
+      subs, nextSubId: subs.length + 1,
+      changeOrders: [], nextCOId: 1,
+      baseline: null,
+      // defaulted so every new/sample project is pre-signed — change anytime via ☎ Contact & plans link
+      pmName: "Sam St. Clair", pmPhone: "706-809-3919", pmEmail: "sam@millwoodhomes.com", plansLink: "",
+    };
+  }
+
+  /* ============ state ============ */
+  const firstProject = freshProject(1, "Sample Project", true);
+  const state = {
+    // view/UI prefs (not per-project)
+    zoom: "week",
+    showDeps: true,
+    theme: "light",
+    activeTab: "schedule",
+    // multi-project bookkeeping
+    nextProjectId: 2,
+    activeProjectId: firstProject.id,
+    activeProjectName: firstProject.name,
+    projects: [], // snapshots of INACTIVE projects only; active project's data is flattened below
+    // active project's live data (flattened for minimal disruption to the rest of the app)
+    startDate: firstProject.startDate,
+    threshold: firstProject.threshold,
+    tasks: firstProject.tasks,
+    nextId: firstProject.nextId,
+    subs: firstProject.subs,
+    nextSubId: firstProject.nextSubId,
+    changeOrders: firstProject.changeOrders,
+    nextCOId: firstProject.nextCOId,
+    baseline: firstProject.baseline,
+    pmName: firstProject.pmName,
+    pmPhone: firstProject.pmPhone,
+    pmEmail: firstProject.pmEmail,
+    plansLink: firstProject.plansLink,
+  };
+  const ZOOM_WIDTH = { month: 5, week: 13, day: 32 };
+  const ROW_H = 32;
+
+  function snapshotActiveProject() {
+    return {
+      id: state.activeProjectId, name: state.activeProjectName,
+      startDate: state.startDate, threshold: state.threshold,
+      tasks: state.tasks, nextId: state.nextId,
+      subs: state.subs, nextSubId: state.nextSubId,
+      changeOrders: state.changeOrders, nextCOId: state.nextCOId,
+      baseline: state.baseline,
+      pmName: state.pmName, pmPhone: state.pmPhone, pmEmail: state.pmEmail, plansLink: state.plansLink,
+    };
+  }
+  function saveActiveIntoProjects() {
+    const snap = snapshotActiveProject();
+    const idx = state.projects.findIndex(p => p.id === state.activeProjectId);
+    if (idx >= 0) state.projects[idx] = snap; else state.projects.push(snap);
+  }
+  function activateProjectData(p) {
+    state.activeProjectId = p.id; state.activeProjectName = p.name;
+    state.startDate = p.startDate; state.threshold = p.threshold;
+    state.tasks = p.tasks; state.nextId = p.nextId;
+    state.subs = p.subs; state.nextSubId = p.nextSubId;
+    state.changeOrders = p.changeOrders || []; state.nextCOId = p.nextCOId || 1;
+    state.baseline = p.baseline || null;
+    state.pmName = p.pmName || ""; state.pmPhone = p.pmPhone || ""; state.pmEmail = p.pmEmail || ""; state.plansLink = p.plansLink || "";
+    document.getElementById("startDateInput").value = state.startDate;
+    document.getElementById("thresholdInput").value = state.threshold;
+  }
+  function switchToProject(id) {
+    if (id === state.activeProjectId) return;
+    saveActiveIntoProjects();
+    const p = state.projects.find(x => x.id === id);
+    if (!p) return;
+    activateProjectData(p);
+    renderAll({ clean: true });
+    renderSubs(); renderBudget(); renderChangeOrders(); renderProjectSwitcher();
+  }
+  function allProjectsList() {
+    // current in-memory list of every project (active + saved), sorted by id, without mutating state
+    saveActiveIntoProjects();
+    return state.projects.slice().sort((a,b) => a.id - b.id);
+  }
+  function renderProjectSwitcher() {
+    const list = allProjectsList();
+    const sel = document.getElementById("projectSelect");
+    sel.innerHTML = list.map(p => `<option value="${p.id}" ${p.id===state.activeProjectId?"selected":""}>${escapeAttr(p.name)}</option>`).join("");
+  }
+  // Normalizes a (possibly partial / older-format) serialized project into a complete, safe project object.
+  function normalizeProject(p) {
+    const tasks = Array.isArray(p.tasks) ? p.tasks.map(t => ({
+      id: t.id, name: t.name || "Untitled", trade: t.trade || "", duration: t.duration || 0,
+      predecessors: t.predecessors || [], milestone: !!t.milestone,
+      status: t.status || "not-started", percent: t.percent || 0, leadDays: t.leadDays || 0,
+      forceStatus: t.forceStatus || null, estCost: t.estCost || 0, actualCost: t.actualCost || 0,
+    })) : [];
+    const subs = Array.isArray(p.subs) && p.subs.length
+      ? p.subs.map(s => S(s.id, s.trade || "", s.company, s.contact, s.phone, s.email, s.notes, s.scopeOfWork, s.initialEmailSentAt))
+      : sampleSubs(tasks);
+    const changeOrders = Array.isArray(p.changeOrders)
+      ? p.changeOrders.map(c => CO(c.id, c.date, c.description, c.costImpact, c.scheduleImpactDays, c.status, c.approvedBy, c.notes))
+      : [];
+    return {
+      id: p.id != null ? p.id : 1,
+      name: p.name || "Untitled Project",
+      startDate: p.startDate || toISO(new Date()),
+      threshold: p.threshold != null ? p.threshold : 3,
+      tasks, nextId: p.nextId || (Math.max(0, ...tasks.map(t => t.id), 0) + 1),
+      subs, nextSubId: p.nextSubId || (Math.max(0, ...subs.map(s => s.id), 0) + 1),
+      changeOrders, nextCOId: p.nextCOId || (Math.max(0, ...changeOrders.map(c => c.id), 0) + 1),
+      baseline: p.baseline || null,
+      pmName: p.pmName || "", pmPhone: p.pmPhone || "", pmEmail: p.pmEmail || "", plansLink: p.plansLink || "",
+    };
+  }
+
+  function parsePredInput(str) {
+    if (!str) return [];
+    return str.split(",").map(s => s.trim()).filter(Boolean).map(part => {
+      const [idStr, lagStr] = part.split(":");
+      return { id: Number(idStr), lag: lagStr ? Number(lagStr) : 0 };
+    }).filter(p => Number.isFinite(p.id));
+  }
+  function predToStr(preds) {
+    return (preds||[]).map(p => p.lag ? (p.id + ":" + p.lag) : String(p.id)).join(", ");
+  }
+
+  function showError(msg) {
+    const el = document.getElementById("errorBanner");
+    if (!msg) { el.style.display = "none"; el.textContent = ""; return; }
+    el.style.display = "block"; el.textContent = "⚠ " + msg;
+  }
+
+  /* ============ compute + render ============ */
+  let lastCompute = null;
+  let dragState = null;
+  let lastGridInfo = null;
+  let dirty = false;
+
+  function updateSaveIndicator() {
+    const el = document.getElementById("saveIndicator");
+    if (!el) return;
+    if (dirty) {
+      el.textContent = "● Saving…";
+      el.className = "save-indicator dirty";
+      el.title = "Autosaving to this browser. Click Export JSON for a portable backup you can carry to another device.";
+    } else {
+      el.textContent = "✓ Autosaved";
+      el.className = "save-indicator clean";
+      el.title = "Your latest changes are saved in this browser. Click Export JSON for a portable backup you can carry to another device.";
+    }
+  }
+
+  function indexOfWorkingDayOnOrAfter(workingDays, date) {
+    for (let i = 0; i < workingDays.length; i++) {
+      if (workingDays[i].date >= date) return i;
+    }
+    return workingDays.length - 1;
+  }
+  function nearestWorkingDayIndex(workingDays, date) {
+    const idx = indexOfWorkingDayOnOrAfter(workingDays, date);
+    if (idx === 0) return 0;
+    const after = workingDays[idx], before = workingDays[idx - 1];
+    if (!after) return idx;
+    const dAfter = Math.abs(after.date - date), dBefore = Math.abs(before.date - date);
+    return dBefore <= dAfter ? idx - 1 : idx;
+  }
+
+  // A task's displayed status is normally computed from its float, but can be pinned
+  // manually via task.forceStatus ("critical" | "near" | "normal" | null = auto).
+  function effectiveStatus(task, r, threshold) {
+    const computedCrit = !!r && r.float === 0;
+    const computedNear = !!r && r.float > 0 && r.float <= threshold;
+    switch (task.forceStatus) {
+      case "critical": return { isCrit: true, isNear: false, forced: true };
+      case "near": return { isCrit: false, isNear: true, forced: true };
+      case "normal": return { isCrit: false, isNear: false, forced: true };
+      default: return { isCrit: computedCrit, isNear: computedNear, forced: false };
+    }
+  }
+
+  function compute() {
+    const start = parseISO(state.startDate);
+    const holidayMap = buildHolidayMap(start.getUTCFullYear(), 4);
+    const workingDays = buildWorkingDays(start, 1200, holidayMap);
+    const cpm = runCPM(state.tasks, workingDays);
+    if (cpm.error) { showError(cpm.error); lastCompute = null; return null; }
+    showError(null);
+    const byId = new Map(cpm.results.map(r => [r.id, r]));
+    let criticalCount = 0, nearCount = 0;
+    for (const t of state.tasks) {
+      const es = effectiveStatus(t, byId.get(t.id), state.threshold);
+      if (es.isCrit) criticalCount++; else if (es.isNear) nearCount++;
+    }
+    let weightedDone = 0, totalWeight = 0;
+    for (const t of state.tasks) {
+      const w = t.milestone ? 1 : Math.max(1, t.duration);
+      totalWeight += w;
+      weightedDone += w * (t.percent||0)/100;
+    }
+    const pctComplete = totalWeight ? Math.round((weightedDone/totalWeight)*100) : 0;
+    const projFinishDay = cpm.projectFinish >= 0 ? workingDays[Math.min(cpm.projectFinish, workingDays.length-1)] : null;
+    lastCompute = { workingDays, holidayMap, byId, results: cpm.results, criticalCount, nearCount, pctComplete,
+      projectStart: workingDays.length ? workingDays[0].date : start,
+      projectFinishDate: projFinishDay ? projFinishDay.date : start,
+    };
+    return lastCompute;
+  }
+
+  function fmtDate(d) {
+    return d.toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric", timeZone:"UTC" });
+  }
+  function calendarSpanDays(a,b){ return Math.round((b-a)/86400000)+1; }
+
+  function renderStats(c) {
+    const el = document.getElementById("statsRow");
+    if (!c) { el.innerHTML = ""; return; }
+    const spanDays = calendarSpanDays(c.projectStart, c.projectFinishDate);
+    const months = (spanDays/30.44).toFixed(1);
+    let baselineTile = "";
+    if (state.baseline) {
+      const baselineFinish = parseISO(state.baseline.projectFinishDate);
+      const diffDays = Math.round((c.projectFinishDate - baselineFinish) / 86400000);
+      const label = diffDays > 0 ? "behind baseline" : diffDays < 0 ? "ahead of baseline" : "on baseline";
+      const color = diffDays > 0 ? "var(--critical)" : diffDays < 0 ? "var(--good)" : "inherit";
+      baselineTile = `<div class="tile"><div class="label">Vs. baseline</div><div class="value" style="color:${color}">${diffDays>0?"+":""}${diffDays}d</div><div class="sub">${label} · set ${state.baseline.setAt}</div></div>`;
+    }
+    el.innerHTML = `
+      <div class="tile"><div class="label">Estimated completion</div><div class="value">${fmtDate(c.projectFinishDate)}</div><div class="sub">${spanDays} calendar days (~${months} mo)</div></div>
+      <div class="tile"><div class="label">Project start</div><div class="value">${fmtDate(c.projectStart)}</div><div class="sub">${state.tasks.length} tasks total</div></div>
+      <div class="tile"><div class="label">Critical-path tasks</div><div class="value critical-ink">${c.criticalCount}</div><div class="sub">0 days of float</div></div>
+      <div class="tile"><div class="label">Near-critical tasks</div><div class="value" style="color:#b5790f">${c.nearCount}</div><div class="sub">≤ ${state.threshold} days of float</div></div>
+      <div class="tile"><div class="label">Overall progress</div><div class="value">${c.pctComplete}%</div><div class="sub">duration-weighted</div></div>
+      ${baselineTile}
+    `;
+    el.style.gridTemplateColumns = `repeat(${state.baseline ? 6 : 5}, 1fr)`;
+  }
+
+  function dayOffset(gridStart, d) { return Math.round((d - gridStart) / 86400000); }
+
+  function renderGantt(c) {
+    const headerRow = document.getElementById("ganttHeaderRow");
+    const body = document.getElementById("ganttBody");
+    headerRow.innerHTML = ""; body.innerHTML = "";
+    if (state.tasks.length === 0) {
+      body.innerHTML = '<div style="padding:24px;color:var(--muted);">No tasks yet — add one below, or click "Reset to sample schedule".</div>';
+      return;
+    }
+    // If the schedule failed to compute (e.g. a circular dependency), still render the
+    // editable task table so the user can fix the bad field — just skip bars/dates.
+    const cSafe = c || { byId: new Map(), workingDays: [], holidayMap: new Map(),
+      projectStart: parseISO(state.startDate), projectFinishDate: addCalDays(parseISO(state.startDate), 30) };
+    c = cSafe;
+    const dayWidth = ZOOM_WIDTH[state.zoom];
+    const infoWidth = 28+168+128+110+40+92+96+48+26+88+58+22 + 4*11 + 12; // exact sum of col widths + gaps + padding
+    const gridStart = c.projectStart;
+    const gridEnd = addCalDays(c.projectFinishDate, 6);
+    const totalDays = Math.max(1, dayOffset(gridStart, gridEnd) + 1);
+    const timelineWidth = totalDays * dayWidth;
+    lastGridInfo = { gridStart, dayWidth, workingDays: c.workingDays };
+
+    // ---- header: corner + axis ----
+    const corner = document.createElement("div");
+    corner.className = "corner";
+    corner.style.width = infoWidth + "px";
+    corner.style.minWidth = infoWidth + "px";
+    corner.style.height = "36px";
+    corner.innerHTML = `<div class="info-cols">
+        <span style="width:28px">#</span><span style="width:168px">Task</span><span style="width:128px">Trade</span>
+        <span style="width:110px">Company</span><span style="width:40px">Dur</span><span style="width:92px">Preds</span><span style="width:96px">Status</span>
+        <span style="width:48px">%</span><span style="width:26px">MS</span><span style="width:88px">Flag</span><span style="width:58px">Float</span><span style="width:22px"></span>
+      </div>`;
+    headerRow.appendChild(corner);
+
+    const axis = document.createElement("div");
+    axis.className = "axis";
+    axis.style.width = timelineWidth + "px";
+    axis.style.height = "36px";
+    // month labels
+    let cursor = new Date(gridStart);
+    let monthHtml = "";
+    while (cursor <= gridEnd) {
+      const mStart = cursor;
+      const nextMonth = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth()+1, 1));
+      const segEnd = nextMonth < gridEnd ? addCalDays(nextMonth,-1) : gridEnd;
+      const x = dayOffset(gridStart, mStart) * dayWidth;
+      const w = (dayOffset(gridStart, segEnd) - dayOffset(gridStart, mStart) + 1) * dayWidth;
+      monthHtml += `<div class="month-lbl" style="left:${x}px;width:${w}px">${mStart.toLocaleDateString(undefined,{month:"short",year:"numeric",timeZone:"UTC"})}</div>`;
+      cursor = nextMonth;
+    }
+    let dayHtml = "";
+    if (dayWidth >= 18) {
+      for (let i = 0; i < totalDays; i++) {
+        const d = addCalDays(gridStart, i);
+        if (dayWidth < 26 && ![1].includes(d.getUTCDate()%7)) { /* thin out labels a bit at week zoom edge */ }
+        dayHtml += `<div class="day-lbl" style="left:${i*dayWidth}px;width:${dayWidth}px">${d.getUTCDate()}</div>`;
+      }
+    }
+    axis.innerHTML = `<div class="month-row">${monthHtml}</div><div class="day-row">${dayHtml}</div>`;
+    headerRow.appendChild(axis);
+
+    // ---- body ----
+    body.style.width = (infoWidth + timelineWidth) + "px";
+    body.style.height = (state.tasks.length * ROW_H) + "px";
+
+    const bg = document.createElement("div");
+    bg.className = "bg-layer";
+    bg.style.left = infoWidth + "px";
+    bg.style.width = timelineWidth + "px";
+    let bgHtml = "";
+    for (let i = 0; i < totalDays; i++) {
+      const d = addCalDays(gridStart, i);
+      const iso = toISO(d);
+      const holidayName = c.holidayMap.get(iso);
+      if (holidayName) {
+        bgHtml += `<div class="bg-cell" title="${holidayName}" style="left:${i*dayWidth}px;width:${dayWidth}px;background:var(--holiday-tint)"></div>`;
+      } else if (isWeekend(d)) {
+        bgHtml += `<div class="bg-cell" style="left:${i*dayWidth}px;width:${dayWidth}px;background:var(--weekend-tint)"></div>`;
+      }
+    }
+    bg.innerHTML = bgHtml;
+    body.appendChild(bg);
+
+    // today line
+    const today = new Date(); const todayUTC = new Date(Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()));
+    if (todayUTC >= gridStart && todayUTC <= gridEnd) {
+      const tl = document.createElement("div");
+      tl.className = "today-line";
+      tl.style.left = (infoWidth + dayOffset(gridStart, todayUTC)*dayWidth) + "px";
+      body.appendChild(tl);
+    }
+
+    // rows — displayed in chronological (computed early-start) order, not insertion order,
+    // so a newly added task lands where it actually falls in the schedule rather than at the bottom.
+    const pixelInfo = new Map();
+    const orderedTasks = state.tasks
+      .map((t, i) => ({ t, i, es: c.byId.get(t.id) ? c.byId.get(t.id).es : Infinity }))
+      .sort((a, b) => (a.es - b.es) || (a.i - b.i))
+      .map(x => x.t);
+    orderedTasks.forEach((t, idx) => {
+      const r = c.byId.get(t.id);
+      const row = document.createElement("div");
+      row.className = "row"; row.style.height = ROW_H + "px";
+
+      const info = document.createElement("div");
+      info.className = "row-info"; info.style.width = infoWidth + "px";
+      const eff = effectiveStatus(t, r, state.threshold);
+      const isCrit = eff.isCrit, isNear = eff.isNear, isForced = eff.forced;
+      const floatClass = isCrit ? "crit" : isNear ? "near" : "ok";
+      const floatNum = r ? `${r.float}d` : "–";
+      const floatIcon = isCrit ? " ✕" : isNear ? " ⚠" : "";
+      const company = lookupCompany(state.subs, t.trade);
+      const forceVal = t.forceStatus || "";
+      info.innerHTML = `
+        <span class="col-id">#${t.id}</span>
+        <input class="col-name" type="text" value="${escapeAttr(t.name)}" data-field="name" data-id="${t.id}">
+        <input class="col-trade" type="text" list="tradesDatalist" value="${escapeAttr(t.trade||"")}" data-field="trade" data-id="${t.id}">
+        <span class="col-company ${company?'':'empty'}" title="${company ? 'Company: '+escapeAttr(company) : 'No company on file for this trade — add one on the Subcontractors tab'}">${escapeAttr(company || "—")}</span>
+        <input class="col-dur" type="number" min="0" value="${t.milestone?0:t.duration}" ${t.milestone?"disabled":""} data-field="duration" data-id="${t.id}">
+        <input class="col-pred" type="text" value="${escapeAttr(predToStr(t.predecessors))}" data-field="predecessors" data-id="${t.id}">
+        <select class="col-status" data-field="status" data-id="${t.id}">
+          <option value="not-started" ${t.status==="not-started"?"selected":""}>Pending</option>
+          <option value="in-progress" ${t.status==="in-progress"?"selected":""}>Active</option>
+          <option value="done" ${t.status==="done"?"selected":""}>Done</option>
+        </select>
+        <input class="col-pct" type="number" min="0" max="100" value="${t.percent||0}" data-field="percent" data-id="${t.id}">
+        <span class="col-milestone">${t.milestone ? "◆" : ""}</span>
+        <select class="col-flag ${isForced?'forced':''}" data-field="forceStatus" data-id="${t.id}" title="Override the computed critical/near-critical/normal status for this task">
+          <option value="" ${forceVal===""?"selected":""}>Auto</option>
+          <option value="critical" ${forceVal==="critical"?"selected":""}>Critical</option>
+          <option value="near" ${forceVal==="near"?"selected":""}>Near-crit</option>
+          <option value="normal" ${forceVal==="normal"?"selected":""}>Normal</option>
+        </select>
+        <span class="col-float float-badge ${floatClass}" title="${isForced ? 'Manually pinned — computed float is '+floatNum : 'Computed from float'}">${floatNum}${floatIcon}${isForced?' 📌':''}</span>
+        <span class="col-del"><button data-action="del" data-id="${t.id}" title="Delete task">✕</button></span>
+      `;
+      row.appendChild(info);
+
+      const tl = document.createElement("div");
+      tl.className = "row-timeline"; tl.style.width = timelineWidth + "px"; tl.style.height = ROW_H + "px";
+      if (r && r.startDate && r.endDate) {
+        const segments = buildSegments(c.workingDays, r.es, r.ef);
+        const color = isCrit ? "var(--critical)" : isNear ? "var(--warning)" : "var(--series-1)";
+        const isDone = t.status === "done";
+        const pct = isDone ? 100 : (t.percent || 0);
+        const startX = dayOffset(gridStart, parseISO(r.startDate)) * dayWidth;
+        const endX = (dayOffset(gridStart, parseISO(r.endDate))+1) * dayWidth;
+        pixelInfo.set(t.id, { xStart: startX, xEnd: endX, y: idx*ROW_H + ROW_H/2 });
+        const draggingCls = (dragState && dragState.taskId === t.id) ? " dragging" : "";
+        const forcedCls = isForced ? " forced" : "";
+        const companyLine = company ? `\n${t.trade} — ${company}` : (t.trade ? `\n${t.trade} (no company on file)` : "");
+        const statusLine = isForced
+          ? `\nManually marked ${isCrit ? "CRITICAL" : isNear ? "NEAR-CRITICAL" : "NORMAL"} (computed float: ${r.float}d)`
+          : (isCrit ? " — CRITICAL PATH" : isNear ? ` — near-critical (float ${r.float}d)` : "");
+        if (t.milestone) {
+          const x = dayOffset(gridStart, parseISO(r.startDate)) * dayWidth + dayWidth/2;
+          tl.innerHTML = `<div class="milestone${draggingCls}${forcedCls} ${isDone?'done':''}" data-id="${t.id}" title="${escapeAttr(t.name)}${escapeAttr(companyLine)}\n${r.startDate} · float ${r.float}d${escapeAttr(isForced ? statusLine : "")}${isDone ? "\nDone" : ""}\nDrag to reschedule" style="left:${x}px;background:${isDone ? 'var(--good)' : color}"></div>`;
+        } else {
+          let barsHtml = "";
+          for (const seg of segments) {
+            const x = dayOffset(gridStart, seg.start) * dayWidth;
+            const w = (dayOffset(gridStart, seg.end) - dayOffset(gridStart, seg.start) + 1) * dayWidth - 2;
+            barsHtml += `<div class="bar${draggingCls}${forcedCls}" data-id="${t.id}" style="left:${x}px;width:${Math.max(w,4)}px" title="${escapeAttr(t.name)}${escapeAttr(companyLine)}\n${r.startDate} → ${r.endDate}\nFloat: ${r.float} work day(s)${isForced ? escapeAttr(statusLine) : statusLine}${isDone ? " — DONE" : ""}\nDrag to reschedule">
+              <div class="fill-bg" style="background:${color}"></div>
+              <div class="fill-done" style="background:var(--good);width:${pct}%"></div>
+            </div>`;
+          }
+          tl.innerHTML = barsHtml + (isDone ? `<div class="bar-label" style="left:${(segments[0]?dayOffset(gridStart,segments[0].start)*dayWidth:0)+4}px">✓</div>` : "");
+        }
+      }
+      // baseline ghost outline — positioned from the absolute dates captured at "Set baseline" time,
+      // rendered independently of whether the live schedule currently computes (uses stored ISO dates).
+      const baselineEntry = state.baseline && state.baseline.byId[t.id];
+      if (baselineEntry && baselineEntry.startDate && baselineEntry.endDate) {
+        const bStart = parseISO(baselineEntry.startDate), bEnd = parseISO(baselineEntry.endDate);
+        if (t.milestone) {
+          const bx = dayOffset(gridStart, bStart) * dayWidth + dayWidth/2;
+          tl.innerHTML += `<div class="milestone-ghost" style="left:${bx}px" title="Baseline: ${baselineEntry.startDate}"></div>`;
+        } else {
+          const bx = dayOffset(gridStart, bStart) * dayWidth;
+          const bw = (dayOffset(gridStart, bEnd) - dayOffset(gridStart, bStart) + 1) * dayWidth - 2;
+          tl.innerHTML += `<div class="bar-ghost" style="left:${bx}px;width:${Math.max(bw,4)}px" title="Baseline: ${baselineEntry.startDate} → ${baselineEntry.endDate}"></div>`;
+        }
+      }
+      row.appendChild(tl);
+      body.appendChild(row);
+    });
+
+    // dependency connectors (binding edges only)
+    if (state.showDeps) {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "deps");
+      svg.style.left = infoWidth + "px";
+      svg.setAttribute("width", timelineWidth);
+      svg.setAttribute("height", state.tasks.length * ROW_H);
+      let paths = "";
+      state.tasks.forEach((t) => {
+        const r = c.byId.get(t.id);
+        if (!r) return;
+        const isCritT = r.float === 0;
+        for (const predId of r.drivers) {
+          const from = pixelInfo.get(predId), to = pixelInfo.get(t.id);
+          if (!from || !to) continue;
+          const predR = c.byId.get(predId);
+          const bothCritical = isCritT && predR && predR.float === 0;
+          const color = bothCritical ? "var(--critical)" : "var(--baseline)";
+          const strokeW = bothCritical ? 1.6 : 1;
+          const midX = from.xEnd + 6;
+          paths += `<path d="M ${from.xEnd} ${from.y} H ${midX} V ${to.y} H ${to.xStart}" fill="none" stroke="${color}" stroke-width="${strokeW}" />`;
+          paths += `<circle cx="${to.xStart}" cy="${to.y}" r="2" fill="${color}" />`;
+        }
+      });
+      svg.innerHTML = paths;
+      body.appendChild(svg);
+    }
+  }
+
+  function buildSegments(workingDays, esIdx, efIdx) {
+    const segs = [];
+    let segStart = null, prev = null;
+    for (let i = esIdx; i <= efIdx; i++) {
+      const wd = workingDays[i]; if (!wd) continue;
+      if (segStart === null) { segStart = wd.date; prev = wd.date; continue; }
+      const gap = Math.round((wd.date - prev) / 86400000);
+      if (gap > 1) { segs.push({ start: segStart, end: prev }); segStart = wd.date; }
+      prev = wd.date;
+    }
+    if (segStart !== null) segs.push({ start: segStart, end: prev });
+    return segs;
+  }
+
+  function escapeAttr(s) { return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+  // Ensures a URL has an explicit http(s):// scheme — email clients only auto-turn a plain-text
+  // URL into a clickable link when it's a fully qualified absolute URL (mailto: bodies are plain
+  // text only, so this "auto-linkify on the recipient's end" is the only way to get a clickable link).
+  function normalizeUrl(u) {
+    const t = (u||"").trim();
+    if (!t) return "";
+    return /^https?:\/\//i.test(t) ? t : "https://" + t;
+  }
+
+  /* ============ generic modal ============ */
+  function openModal(html) {
+    document.getElementById("modalBox").innerHTML = html;
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+  function closeModal() {
+    document.getElementById("modalOverlay").classList.remove("open");
+    document.getElementById("modalBox").innerHTML = "";
+  }
+  document.getElementById("modalOverlay").addEventListener("click", e => {
+    if (e.target.id === "modalOverlay") closeModal();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && document.getElementById("modalOverlay").classList.contains("open")) closeModal();
+  });
+
+  function updateBaselineButtons() {
+    document.getElementById("clearBaselineBtn").style.display = state.baseline ? "" : "none";
+    document.getElementById("setBaselineBtn").textContent = state.baseline ? "📌 Update baseline" : "📌 Set baseline";
+  }
+
+  function renderAll(opts) {
+    const c = compute();
+    renderStats(c);
+    renderGantt(c);
+    renderTradesDatalist();
+    updateBaselineButtons();
+    if (!(opts && opts.clean)) dirty = true;
+    updateSaveIndicator();
+  }
+
+  /* ============ subcontractors tab ============ */
+  function renderTradesDatalist() {
+    const dl = document.getElementById("tradesDatalist");
+    dl.innerHTML = state.subs.map(s => `<option value="${escapeAttr(s.trade)}">`).join("");
+  }
+
+  function renderSubs() {
+    const body = document.getElementById("subsBody");
+    if (state.subs.length === 0) {
+      body.innerHTML = '<div style="padding:16px;color:var(--muted);">No trades yet — add one below.</div>';
+      return;
+    }
+    body.innerHTML = state.subs.map(s => `
+      <div class="subs-row" data-sub-id="${s.id}">
+        <span class="sc-trade"><input type="text" data-sfield="trade" data-sid="${s.id}" value="${escapeAttr(s.trade)}"></span>
+        <span class="sc-company"><input type="text" data-sfield="company" data-sid="${s.id}" value="${escapeAttr(s.company)}"></span>
+        <span class="sc-contact"><input type="text" data-sfield="contact" data-sid="${s.id}" value="${escapeAttr(s.contact)}"></span>
+        <span class="sc-phone"><input type="text" data-sfield="phone" data-sid="${s.id}" value="${escapeAttr(s.phone)}"></span>
+        <span class="sc-email"><input type="text" data-sfield="email" data-sid="${s.id}" value="${escapeAttr(s.email)}"></span>
+        <span class="sc-notes"><input type="text" data-sfield="notes" data-sid="${s.id}" value="${escapeAttr(s.notes)}"></span>
+        <span class="sc-scope"><button data-subaction="scope" data-sid="${s.id}" title="${s.scopeOfWork?'Edit scope of work':'Add scope of work'}">${s.scopeOfWork?'📋 Scope ✓':'📋 Scope'}</button></span>
+        <span class="sc-emailbtn"><button data-subaction="email" data-sid="${s.id}" ${s.email?"":"disabled"} title="${s.email?'Open a pre-filled email with this trade&#39;s current tasks':'Add an email address first'}">✉ Email</button></span>
+        <span class="sc-initial"><button data-subaction="initial" data-sid="${s.id}" ${s.email?"":"disabled"} title="${s.email?'Open a pre-filled welcome email with scope, schedule, plans link, and your contact info':'Add an email address first'}">📨 Initial</button>${s.initialEmailSentAt ? `<span class="sent-check" title="Initial email opened ${escapeAttr(s.initialEmailSentAt)}">✓ sent</span>` : ""}</span>
+        <span class="sc-del"><button data-subaction="del" data-sid="${s.id}" title="Delete trade">✕</button></span>
+      </div>
+    `).join("");
+  }
+
+  // Signature block shared by both email types — falls back to generic branding if no PM contact is set.
+  function signatureBlock() {
+    if (state.pmName || state.pmPhone || state.pmEmail) {
+      return [state.pmName || "Millwood Homes", "Millwood Homes", state.pmPhone, state.pmEmail].filter(Boolean).join("\n");
+    }
+    return "Millwood Homes";
+  }
+
+  // Builds a mailto: link listing a trade's current tasks/dates, sorted chronologically.
+  // Opens the user's own email client — nothing is sent server-side, no accounts/hosting involved.
+  function buildSubEmail(sub) {
+    const rel = state.tasks.filter(t => (t.trade||"").trim().toLowerCase() === (sub.trade||"").trim().toLowerCase());
+    const c = lastCompute;
+    const lines = rel
+      .map(t => ({ t, r: c ? c.byId.get(t.id) : null }))
+      .sort((a,b) => (a.r ? a.r.es : Infinity) - (b.r ? b.r.es : Infinity))
+      .map(({t,r}) => {
+        const when = r && r.startDate ? (t.milestone ? r.startDate : `${r.startDate} to ${r.endDate}`) : "date TBD";
+        const statusLbl = t.status === "done" ? " [DONE]" : t.status === "in-progress" ? " [IN PROGRESS]" : "";
+        return `- ${t.name}: ${when}${statusLbl}`;
+      });
+    const projectLabel = state.activeProjectName || "the project";
+    const greeting = sub.contact ? `Hi ${sub.contact},` : "Hi,";
+    const body = `${greeting}\n\nHere is the current schedule for ${sub.trade} on ${projectLabel}:\n\n`
+      + (lines.length ? lines.join("\n") : "(No tasks currently assigned to this trade.)")
+      + `\n\nLet us know if any of these dates need to shift.\n\nThanks,\n${signatureBlock()}`;
+    const subject = `${projectLabel} — schedule for ${sub.trade}`;
+    return `mailto:${encodeURIComponent(sub.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  // Builds the initial/onboarding mailto: link: scope of work, preliminary schedule, plans link, and
+  // a closing invitation to call with questions. This is a bigger, one-time email vs. buildSubEmail's
+  // ongoing schedule-update email.
+  function buildInitialEmail(sub) {
+    const rel = state.tasks.filter(t => (t.trade||"").trim().toLowerCase() === (sub.trade||"").trim().toLowerCase());
+    const c = lastCompute;
+    const lines = rel
+      .map(t => ({ t, r: c ? c.byId.get(t.id) : null }))
+      .sort((a,b) => (a.r ? a.r.es : Infinity) - (b.r ? b.r.es : Infinity))
+      .map(({t,r}) => {
+        const when = r && r.startDate ? (t.milestone ? r.startDate : `${r.startDate} to ${r.endDate}`) : "date TBD";
+        return `- ${t.name}: ${when} (preliminary)`;
+      });
+    const projectLabel = state.activeProjectName || "the project";
+    const greeting = sub.contact ? `Hi ${sub.contact},` : "Hi,";
+    const scopeSection = sub.scopeOfWork ? `Scope of work:\n${sub.scopeOfWork}\n\n` : "";
+    const scheduleSection = `Preliminary schedule for your work (dates are tentative and may shift slightly as the project progresses — we'll keep you posted):\n`
+      + (lines.length ? lines.join("\n") : "(Dates to be confirmed as the schedule firms up.)") + `\n\n`;
+    const plansLink = normalizeUrl(state.plansLink);
+    const plansSection = plansLink ? `Project plans: ${plansLink}\n\n` : "";
+    const body = `${greeting}\n\nWe're glad to have ${sub.company || sub.trade} on board for ${sub.trade} on ${projectLabel}. Here's what you need to get started:\n\n`
+      + scopeSection + scheduleSection + plansSection
+      + `If you have any questions at all, please call me directly — happy to walk through any of this.\n\nThanks,\n${signatureBlock()}`;
+    const subject = `Welcome to ${projectLabel} — ${sub.trade} scope & schedule`;
+    return `mailto:${encodeURIComponent(sub.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  function markDirty() { dirty = true; updateSaveIndicator(); }
+
+  /* ============ budget tab ============ */
+  function fmtMoney(n) {
+    const sign = n < 0 ? "-" : "";
+    return sign + "$" + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function renderBudget() {
+    const bodyEl = document.getElementById("budgetBody");
+    if (state.tasks.length === 0) {
+      document.getElementById("budgetStatsRow").innerHTML = "";
+      bodyEl.innerHTML = '<div style="padding:16px;color:var(--muted);">No tasks yet — add tasks on the Schedule tab first.</div>';
+      document.getElementById("budgetByTrade").innerHTML = "";
+      return;
+    }
+    bodyEl.innerHTML = state.tasks.map(t => {
+      const est = t.estCost || 0, actual = t.actualCost || 0, variance = actual - est;
+      const varCls = variance > 0 ? "over" : variance < 0 ? "under" : "";
+      return `
+      <div class="subs-row" data-task-id="${t.id}">
+        <span class="bg-id">#${t.id}</span>
+        <span class="bg-name" title="${escapeAttr(t.name)}">${escapeAttr(t.name)}</span>
+        <span class="bg-trade">${escapeAttr(t.trade || "—")}</span>
+        <span class="bg-cost"><input type="number" min="0" step="0.01" data-bfield="estCost" data-id="${t.id}" value="${est}"></span>
+        <span class="bg-cost"><input type="number" min="0" step="0.01" data-bfield="actualCost" data-id="${t.id}" value="${actual}"></span>
+        <span class="bg-var ${varCls}">${fmtMoney(variance)}</span>
+      </div>`;
+    }).join("");
+    renderBudgetSummary();
+  }
+  // Stats tiles + by-trade rollup only — deliberately NOT touching the row/input markup above,
+  // so editing one cost field doesn't destroy a sibling field a user just tabbed into (that would
+  // detach the browser's focus target mid-keystroke since a full rebuild replaces every input).
+  function renderBudgetSummary() {
+    const statsEl = document.getElementById("budgetStatsRow");
+    const byTradeEl = document.getElementById("budgetByTrade");
+    if (state.tasks.length === 0) { statsEl.innerHTML = ""; byTradeEl.innerHTML = ""; return; }
+    let totalEst = 0, totalActual = 0;
+    for (const t of state.tasks) { totalEst += t.estCost||0; totalActual += t.actualCost||0; }
+    const totalVar = totalActual - totalEst;
+    const pctSpent = totalEst ? Math.round((totalActual/totalEst)*100) : 0;
+    statsEl.innerHTML = `
+      <div class="tile"><div class="label">Total estimated</div><div class="value">${fmtMoney(totalEst)}</div><div class="sub">${state.tasks.length} tasks</div></div>
+      <div class="tile"><div class="label">Total actual</div><div class="value">${fmtMoney(totalActual)}</div><div class="sub">${pctSpent}% of estimate</div></div>
+      <div class="tile"><div class="label">Variance</div><div class="value" style="color:${totalVar>0?'var(--critical)':totalVar<0?'var(--good)':'inherit'}">${fmtMoney(totalVar)}</div><div class="sub">${totalVar>0?"over budget":totalVar<0?"under budget":"on budget"}</div></div>
+    `;
+    statsEl.style.gridTemplateColumns = "repeat(3, 1fr)";
+
+    const groups = new Map();
+    for (const t of state.tasks) {
+      const key = (t.trade||"").trim() || "No trade assigned";
+      if (!groups.has(key)) groups.set(key, { est: 0, actual: 0 });
+      const g = groups.get(key);
+      g.est += t.estCost||0; g.actual += t.actualCost||0;
+    }
+    const rows = [...groups.entries()].sort((a,b) => b[1].est - a[1].est);
+    byTradeEl.innerHTML = rows.map(([trade, g]) => {
+      const v = g.actual - g.est;
+      return `<div class="trade-row">
+        <span class="tr-name">${escapeAttr(trade)}</span>
+        <span class="tr-cost">Est ${fmtMoney(g.est)}</span>
+        <span class="tr-cost">Actual ${fmtMoney(g.actual)}</span>
+        <span class="tr-var" style="color:${v>0?'var(--critical)':v<0?'var(--good)':'inherit'}">${fmtMoney(v)}</span>
+      </div>`;
+    }).join("") || '<div style="padding:10px 12px;color:var(--muted);font-size:12px;">No trades assigned yet.</div>';
+  }
+  document.getElementById("budgetBody").addEventListener("change", e => {
+    const el = e.target; const field = el.dataset.bfield; const id = Number(el.dataset.id);
+    if (!field) return;
+    const task = state.tasks.find(t => t.id === id); if (!task) return;
+    task[field] = Math.max(0, Number(el.value)||0);
+    // surgical update: just this row's variance cell, not the whole table (see renderBudgetSummary comment)
+    const row = el.closest(".subs-row");
+    if (row) {
+      const variance = (task.actualCost||0) - (task.estCost||0);
+      const varEl = row.querySelector(".bg-var");
+      varEl.textContent = fmtMoney(variance);
+      varEl.className = "bg-var" + (variance>0?" over":variance<0?" under":"");
+    }
+    renderBudgetSummary();
+    markDirty();
+  });
+
+  /* ============ change orders tab ============ */
+  function renderChangeOrders() {
+    const statsEl = document.getElementById("coStatsRow");
+    const bodyEl = document.getElementById("coBody");
+    const cos = state.changeOrders || [];
+    if (cos.length === 0) {
+      bodyEl.innerHTML = '<div style="padding:16px;color:var(--muted);">No change orders logged yet — add one below.</div>';
+    } else {
+      bodyEl.innerHTML = cos.map(co => `
+        <div class="subs-row" data-co-id="${co.id}">
+          <span class="co-id">#${co.id}</span>
+          <span class="co-date"><input type="date" data-cofield="date" data-id="${co.id}" value="${escapeAttr(co.date)}"></span>
+          <span class="co-desc"><input type="text" data-cofield="description" data-id="${co.id}" value="${escapeAttr(co.description)}"></span>
+          <span class="co-cost"><input type="number" step="0.01" data-cofield="costImpact" data-id="${co.id}" value="${co.costImpact}"></span>
+          <span class="co-days"><input type="number" data-cofield="scheduleImpactDays" data-id="${co.id}" value="${co.scheduleImpactDays}"></span>
+          <span class="co-status">
+            <select data-cofield="status" data-id="${co.id}">
+              <option value="pending" ${co.status==="pending"?"selected":""}>Pending</option>
+              <option value="approved" ${co.status==="approved"?"selected":""}>Approved</option>
+              <option value="rejected" ${co.status==="rejected"?"selected":""}>Rejected</option>
+            </select>
+          </span>
+          <span class="co-approved"><input type="text" data-cofield="approvedBy" data-id="${co.id}" value="${escapeAttr(co.approvedBy)}" placeholder="Name"></span>
+          <span class="co-notes"><input type="text" data-cofield="notes" data-id="${co.id}" value="${escapeAttr(co.notes)}"></span>
+          <span class="sc-del"><button data-coaction="del" data-id="${co.id}" title="Delete change order">✕</button></span>
+        </div>`).join("");
+    }
+    renderCOSummary();
+  }
+  // Stats tiles only — deliberately separate from the row rebuild above, for the same reason as
+  // renderBudgetSummary: rebuilding every row's inputs on every keystroke would detach focus from
+  // whichever field a user just tabbed into on the same row (e.g. Cost impact -> Schedule impact).
+  function renderCOSummary() {
+    const statsEl = document.getElementById("coStatsRow");
+    const cos = state.changeOrders || [];
+    const approved = cos.filter(c => c.status === "approved");
+    const totalCost = approved.reduce((s,c) => s + (Number(c.costImpact)||0), 0);
+    const totalDays = approved.reduce((s,c) => s + (Number(c.scheduleImpactDays)||0), 0);
+    const pendingCount = cos.filter(c => c.status === "pending").length;
+    statsEl.innerHTML = `
+      <div class="tile"><div class="label">Approved cost impact</div><div class="value" style="color:${totalCost>0?'var(--critical)':totalCost<0?'var(--good)':'inherit'}">${fmtMoney(totalCost)}</div><div class="sub">${approved.length} approved CO(s)</div></div>
+      <div class="tile"><div class="label">Approved schedule impact</div><div class="value">${totalDays>=0?"+":""}${totalDays}d</div><div class="sub">not auto-applied to tasks</div></div>
+      <div class="tile"><div class="label">Pending review</div><div class="value">${pendingCount}</div><div class="sub">of ${cos.length} total</div></div>
+    `;
+    statsEl.style.gridTemplateColumns = "repeat(3, 1fr)";
+  }
+  document.getElementById("coBody").addEventListener("change", e => {
+    const el = e.target; const field = el.dataset.cofield; const id = Number(el.dataset.id);
+    if (!field) return;
+    const co = state.changeOrders.find(c => c.id === id); if (!co) return;
+    if (field === "costImpact" || field === "scheduleImpactDays") co[field] = Number(el.value) || 0;
+    else co[field] = el.value;
+    renderCOSummary();
+    markDirty();
+  });
+  document.getElementById("coBody").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-coaction='del']"); if (!btn) return;
+    const id = Number(btn.dataset.id);
+    if (!confirm("Delete this change order?")) return;
+    state.changeOrders = state.changeOrders.filter(c => c.id !== id);
+    renderChangeOrders();
+    markDirty();
+  });
+  document.getElementById("addCOBtn").addEventListener("click", () => {
+    const date = document.getElementById("newCODate").value || toISO(new Date());
+    const description = document.getElementById("newCODesc").value.trim();
+    if (!description) { alert("Give the change order a short description first."); return; }
+    const costImpact = Number(document.getElementById("newCOCost").value) || 0;
+    const scheduleImpactDays = Number(document.getElementById("newCODays").value) || 0;
+    const status = document.getElementById("newCOStatus").value;
+    state.changeOrders.push(CO(state.nextCOId++, date, description, costImpact, scheduleImpactDays, status));
+    document.getElementById("newCODate").value = ""; document.getElementById("newCODesc").value = "";
+    document.getElementById("newCOCost").value = ""; document.getElementById("newCODays").value = "";
+    document.getElementById("newCOStatus").value = "pending";
+    renderChangeOrders();
+    markDirty();
+  });
+
+  document.getElementById("subsBody").addEventListener("change", e => {
+    const el = e.target; const field = el.dataset.sfield; const id = Number(el.dataset.sid);
+    if (!field) return;
+    const sub = state.subs.find(s => s.id === id); if (!sub) return;
+    sub[field] = el.value;
+    renderTradesDatalist();
+    renderGantt(lastCompute); // company lookups may have changed
+    if (field === "email") {
+      // surgical update of just this row's Email/Initial buttons — not a full renderSubs(), which
+      // would rebuild every input and detach focus from whatever field the user tabs into next
+      const row = el.closest(".subs-row");
+      const emailBtn = row && row.querySelector("button[data-subaction='email']");
+      if (emailBtn) {
+        emailBtn.disabled = !sub.email;
+        emailBtn.title = sub.email ? "Open a pre-filled email with this trade's current tasks" : "Add an email address first";
+      }
+      const initialBtn = row && row.querySelector("button[data-subaction='initial']");
+      if (initialBtn) {
+        initialBtn.disabled = !sub.email;
+        initialBtn.title = sub.email ? "Open a pre-filled welcome email with scope, schedule, plans link, and your contact info" : "Add an email address first";
+      }
+    }
+    markDirty();
+  });
+  document.getElementById("subsBody").addEventListener("click", e => {
+    const delBtn = e.target.closest("button[data-subaction='del']");
+    if (delBtn) {
+      const id = Number(delBtn.dataset.sid);
+      if (!confirm("Delete this trade from the directory? Tasks using this trade will show no company until you re-add it.")) return;
+      state.subs = state.subs.filter(s => s.id !== id);
+      renderSubs(); renderTradesDatalist(); renderGantt(lastCompute);
+      markDirty();
+      return;
+    }
+    const emailBtn = e.target.closest("button[data-subaction='email']");
+    if (emailBtn) {
+      const sub = state.subs.find(s => s.id === Number(emailBtn.dataset.sid));
+      if (!sub || !sub.email) return;
+      openMailto(buildSubEmail(sub));
+      return;
+    }
+    const scopeBtn = e.target.closest("button[data-subaction='scope']");
+    if (scopeBtn) {
+      openScopeModal(Number(scopeBtn.dataset.sid));
+      return;
+    }
+    const initialBtn = e.target.closest("button[data-subaction='initial']");
+    if (initialBtn) {
+      const sub = state.subs.find(s => s.id === Number(initialBtn.dataset.sid));
+      if (!sub || !sub.email) return;
+      openMailto(buildInitialEmail(sub));
+      sub.initialEmailSentAt = toISO(new Date());
+      renderSubs();
+      markDirty();
+    }
+  });
+
+  // Shared anchor-click trick (matches how Export triggers its download) — avoids any risk of the
+  // mailto: navigation replacing the dashboard tab itself.
+  function openMailto(href) {
+    const a = document.createElement("a");
+    a.href = href;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  function openScopeModal(subId) {
+    const sub = state.subs.find(s => s.id === subId);
+    if (!sub) return;
+    openModal(`
+      <h3>Scope of work — ${escapeAttr(sub.trade)}</h3>
+      <div class="modal-sub">A short description of what ${escapeAttr(sub.trade)} covers on this project. Included in their initial onboarding email.</div>
+      <label class="field"><textarea id="mScope" placeholder="e.g. Supply and install all rough and finish plumbing per plans, including fixture sets in all baths and the kitchen. Excludes gas line to range.">${escapeAttr(sub.scopeOfWork)}</textarea></label>
+      <div class="modal-actions">
+        <button class="ghost" id="mCancel">Cancel</button>
+        <button class="primary" id="mSave">Save</button>
+      </div>
+    `);
+    document.getElementById("mCancel").addEventListener("click", closeModal);
+    document.getElementById("mSave").addEventListener("click", () => {
+      sub.scopeOfWork = document.getElementById("mScope").value.trim();
+      renderSubs();
+      markDirty();
+      closeModal();
+    });
+  }
+  // Steps through every sub with an email on file, one at a time — mailto can only open one
+  // compose window per click, so this is the practical substitute for "send to everyone at once."
+  document.getElementById("sendInitialSeqBtn").addEventListener("click", () => {
+    const queue = state.subs.filter(s => s.email);
+    if (!queue.length) { alert("None of your subcontractors have an email address on file yet. Add one on this tab first."); return; }
+    let idx = 0;
+    function renderStep() {
+      if (idx >= queue.length) {
+        openModal(`
+          <h3>All done</h3>
+          <div class="modal-sub">Stepped through ${queue.length} subcontractor(s) with an email on file.</div>
+          <div class="modal-actions"><button class="primary" id="mClose">Close</button></div>
+        `);
+        document.getElementById("mClose").addEventListener("click", closeModal);
+        renderSubs();
+        return;
+      }
+      const sub = queue[idx];
+      const scopeNote = sub.scopeOfWork ? "" : `<div class="modal-hint">No scope of work set yet — the email will skip that section. Use the 📋 Scope button on the table first if you want it included.</div>`;
+      const sentNote = sub.initialEmailSentAt ? `<div class="modal-hint">Already opened once on ${escapeAttr(sub.initialEmailSentAt)} — opening again just reopens the draft.</div>` : "";
+      const plansNote = state.plansLink ? "" : `<div class="modal-hint">No plans link set — set one via ☎ Contact &amp; plans link above if you want it included.</div>`;
+      openModal(`
+        <h3>Send initial emails</h3>
+        <div class="stepper-progress">${idx+1} of ${queue.length}</div>
+        <div class="stepper-card">
+          <div class="st-trade">${escapeAttr(sub.trade)}</div>
+          <div class="st-meta">${escapeAttr(sub.company||"No company on file")}${sub.contact?" · "+escapeAttr(sub.contact):""}</div>
+          <div class="st-meta">${escapeAttr(sub.email)}</div>
+        </div>
+        ${scopeNote}${plansNote}${sentNote}
+        <div class="modal-actions">
+          <button class="ghost" id="mSkip">Skip</button>
+          <button class="ghost" id="mCloseSeq">Close</button>
+          <button class="primary" id="mOpen">Open email &amp; mark sent</button>
+        </div>
+      `);
+      document.getElementById("mSkip").addEventListener("click", () => { idx++; renderStep(); });
+      document.getElementById("mCloseSeq").addEventListener("click", () => { renderSubs(); closeModal(); });
+      document.getElementById("mOpen").addEventListener("click", () => {
+        openMailto(buildInitialEmail(sub));
+        sub.initialEmailSentAt = toISO(new Date());
+        markDirty();
+        idx++;
+        renderStep();
+      });
+    }
+    renderStep();
+  });
+
+  document.getElementById("addSubBtn").addEventListener("click", () => {
+    const trade = document.getElementById("newSubTrade").value.trim();
+    if (!trade) { alert("Give the trade a name first (e.g. \"Framing Crew\")."); return; }
+    state.subs.push(S(
+      state.nextSubId++, trade,
+      document.getElementById("newSubCompany").value.trim(),
+      document.getElementById("newSubContact").value.trim(),
+      document.getElementById("newSubPhone").value.trim(),
+      document.getElementById("newSubEmail").value.trim(),
+    ));
+    ["newSubTrade","newSubCompany","newSubContact","newSubPhone","newSubEmail"].forEach(id => document.getElementById(id).value = "");
+    renderSubs(); renderTradesDatalist(); renderGantt(lastCompute);
+    markDirty();
+  });
+
+  /* ============ tab switching ============ */
+  const TAB_IDS = ["schedule", "subs", "budget", "changeorders"];
+  document.getElementById("tabBar").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-tab]"); if (!btn) return;
+    state.activeTab = btn.dataset.tab;
+    [...document.getElementById("tabBar").children].forEach(b => b.classList.toggle("active", b === btn));
+    TAB_IDS.forEach(id => { document.getElementById("tab-" + id).style.display = (state.activeTab === id) ? "" : "none"; });
+    if (state.activeTab === "subs") renderSubs();
+    else if (state.activeTab === "budget") renderBudget();
+    else if (state.activeTab === "changeorders") renderChangeOrders();
+  });
+
+  /* ============ project switcher ============ */
+  document.getElementById("projectSelect").addEventListener("change", e => {
+    switchToProject(Number(e.target.value));
+  });
+  document.getElementById("newProjectBtn").addEventListener("click", () => {
+    const name = prompt('Name this project (e.g. "123 Oak St"):', "");
+    if (name === null) return;
+    const useSample = confirm("Start from the standard sample task list?\n\nOK = standard sample tasks\nCancel = start blank");
+    saveActiveIntoProjects();
+    const id = state.nextProjectId++;
+    const p = freshProject(id, name.trim() || "Untitled Project", useSample);
+    activateProjectData(p);
+    renderAll(); renderSubs(); renderBudget(); renderChangeOrders(); renderProjectSwitcher();
+  });
+  document.getElementById("duplicateProjectBtn").addEventListener("click", () => {
+    saveActiveIntoProjects();
+    const src = state.projects.find(p => p.id === state.activeProjectId);
+    if (!src) return;
+    const id = state.nextProjectId++;
+    const clone = JSON.parse(JSON.stringify(src));
+    clone.id = id; clone.name = (src.name || "Project") + " (copy)";
+    activateProjectData(clone);
+    renderAll(); renderSubs(); renderBudget(); renderChangeOrders(); renderProjectSwitcher();
+  });
+  document.getElementById("renameProjectBtn").addEventListener("click", () => {
+    const name = prompt("Rename this project:", state.activeProjectName);
+    if (name === null) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    state.activeProjectName = trimmed;
+    renderProjectSwitcher();
+    markDirty();
+  });
+  document.getElementById("deleteProjectBtn").addEventListener("click", () => {
+    const list = allProjectsList();
+    if (list.length <= 1) { alert("You need at least one project — create a new one before deleting this one."); return; }
+    if (!confirm(`Delete project "${state.activeProjectName}"? This can't be undone unless you've exported it before.`)) return;
+    const idToDelete = state.activeProjectId;
+    state.projects = state.projects.filter(p => p.id !== idToDelete);
+    activateProjectData(state.projects[0]);
+    renderAll(); renderSubs(); renderBudget(); renderChangeOrders(); renderProjectSwitcher();
+  });
+
+  document.getElementById("projectInfoBtn").addEventListener("click", () => {
+    openModal(`
+      <h3>Contact info &amp; plans link</h3>
+      <div class="modal-sub">Used to sign emails you send to subcontractors, and to include a link to the project plans. Saved with this project.</div>
+      <label class="field">Your name<input type="text" id="mPmName" value="${escapeAttr(state.pmName)}" placeholder="e.g. Sam St. Claire"></label>
+      <label class="field">Your phone<input type="text" id="mPmPhone" value="${escapeAttr(state.pmPhone)}" placeholder="e.g. (555) 123-4567"></label>
+      <label class="field">Your email<input type="text" id="mPmEmail" value="${escapeAttr(state.pmEmail)}" placeholder="e.g. sam@millwoodlandcompany.com"></label>
+      <label class="field">Plans link<input type="text" id="mPlansLink" value="${escapeAttr(state.plansLink)}" placeholder="e.g. https://drive.google.com/... or Dropbox/OneDrive folder link"></label>
+      <div class="modal-actions">
+        <button class="ghost" id="mCancel">Cancel</button>
+        <button class="primary" id="mSave">Save</button>
+      </div>
+    `);
+    document.getElementById("mCancel").addEventListener("click", closeModal);
+    document.getElementById("mSave").addEventListener("click", () => {
+      state.pmName = document.getElementById("mPmName").value.trim();
+      state.pmPhone = document.getElementById("mPmPhone").value.trim();
+      state.pmEmail = document.getElementById("mPmEmail").value.trim();
+      state.plansLink = normalizeUrl(document.getElementById("mPlansLink").value);
+      markDirty();
+      closeModal();
+    });
+  });
+
+  /* ============ event wiring ============ */
+  document.getElementById("startDateInput").value = state.startDate;
+  document.getElementById("thresholdInput").value = state.threshold;
+
+  document.getElementById("startDateInput").addEventListener("change", e => { state.startDate = e.target.value; renderAll(); });
+  document.getElementById("thresholdInput").addEventListener("change", e => { state.threshold = Math.max(0, Number(e.target.value)||0); renderAll(); });
+
+  document.getElementById("zoomGroup").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-zoom]"); if (!btn) return;
+    state.zoom = btn.dataset.zoom;
+    [...document.getElementById("zoomGroup").children].forEach(b => b.classList.toggle("active", b === btn));
+    renderGantt(lastCompute);
+  });
+  document.getElementById("depToggle").addEventListener("change", e => { state.showDeps = e.target.checked; renderGantt(lastCompute); });
+
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    state.theme = state.theme === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", state.theme);
+  });
+
+  document.getElementById("ganttBody").addEventListener("change", e => {
+    const el = e.target; const field = el.dataset.field; const id = Number(el.dataset.id);
+    if (!field) return;
+    const task = state.tasks.find(t => t.id === id); if (!task) return;
+    if (field === "predecessors") task.predecessors = parsePredInput(el.value);
+    else if (field === "duration") task.duration = Math.max(0, Number(el.value)||0);
+    else if (field === "percent") task.percent = Math.min(100, Math.max(0, Number(el.value)||0));
+    else if (field === "name") task.name = el.value;
+    else if (field === "trade") task.trade = el.value;
+    else if (field === "status") { task.status = el.value; if (el.value === "done") task.percent = 100; }
+    else if (field === "forceStatus") task.forceStatus = el.value || null;
+    renderAll();
+  });
+  document.getElementById("ganttBody").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-action='del']"); if (!btn) return;
+    const id = Number(btn.dataset.id);
+    if (!confirm("Delete this task? Any tasks depending on it will need new predecessors.")) return;
+    state.tasks = state.tasks.filter(t => t.id !== id);
+    state.tasks.forEach(t => t.predecessors = (t.predecessors||[]).filter(p => p.id !== id));
+    renderAll();
+  });
+
+  /* ============ drag-to-reschedule on the Gantt chart ============ */
+  let dragTipEl = null;
+  function showDragTip(clientX, clientY) {
+    if (!dragTipEl) {
+      dragTipEl = document.createElement("div");
+      dragTipEl.className = "drag-tip";
+      document.body.appendChild(dragTipEl);
+    }
+    const r = lastCompute ? lastCompute.byId.get(dragState.taskId) : null;
+    if (r) {
+      dragTipEl.textContent = `${r.startDate} → ${r.endDate}` + (r.float === 0 ? "  ·  CRITICAL PATH" : `  ·  ${r.float}d float`);
+    }
+    dragTipEl.style.left = clientX + "px";
+    dragTipEl.style.top = clientY + "px";
+    dragTipEl.style.display = "block";
+  }
+  function hideDragTip() { if (dragTipEl) dragTipEl.style.display = "none"; }
+
+  function computeDragDelta(clientX) {
+    const { gridStart, dayWidth, workingDays } = lastGridInfo;
+    const deltaPx = clientX - dragState.startClientX;
+    const originalDate = workingDays[dragState.originalESIndex].date;
+    const originalLeftPx = dayOffset(gridStart, originalDate) * dayWidth;
+    const dayIdx = Math.round((originalLeftPx + deltaPx) / dayWidth);
+    const targetDate = addCalDays(gridStart, dayIdx);
+    const newESIndex = nearestWorkingDayIndex(workingDays, targetDate);
+    return newESIndex - dragState.originalESIndex;
+  }
+
+  function onDragMove(e) {
+    if (!dragState) return;
+    const delta = computeDragDelta(e.clientX);
+    const task = state.tasks.find(t => t.id === dragState.taskId);
+    if (!task) return;
+    if (dragState.isRoot) {
+      task.leadDays = Math.max(0, dragState.originalLead + delta);
+    } else {
+      for (const entry of dragState.originalLagEntries) entry.ref.lag = Math.max(0, entry.lag + delta);
+    }
+    renderAll();
+    showDragTip(e.clientX, e.clientY);
+  }
+
+  function endDrag() {
+    if (!dragState) return;
+    document.body.classList.remove("is-dragging");
+    document.removeEventListener("pointermove", onDragMove);
+    document.removeEventListener("pointerup", endDrag);
+    document.removeEventListener("keydown", onDragKeydown);
+    hideDragTip();
+    dragState = null;
+    renderGantt(lastCompute);
+  }
+
+  function onDragKeydown(e) {
+    if (e.key === "Escape" && dragState) {
+      const task = state.tasks.find(t => t.id === dragState.taskId);
+      if (task) {
+        if (dragState.isRoot) task.leadDays = dragState.originalLead;
+        else for (const entry of dragState.originalLagEntries) entry.ref.lag = entry.lag;
+      }
+      endDrag();
+      renderAll();
+    }
+  }
+
+  function startDrag(e, taskId) {
+    if (!lastCompute || !lastGridInfo) return;
+    const r = lastCompute.byId.get(taskId);
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!r || !task) return;
+    e.preventDefault();
+    const isRoot = (task.predecessors || []).length === 0;
+    dragState = {
+      taskId,
+      startClientX: e.clientX,
+      originalESIndex: r.es,
+      isRoot,
+      originalLead: isRoot ? (task.leadDays || 0) : 0,
+      originalLagEntries: isRoot ? [] : (task.predecessors || [])
+        .filter(p => r.drivers.includes(p.id))
+        .map(p => ({ ref: p, lag: p.lag || 0 })),
+    };
+    document.body.classList.add("is-dragging");
+    document.addEventListener("pointermove", onDragMove);
+    document.addEventListener("pointerup", endDrag);
+    document.addEventListener("keydown", onDragKeydown);
+    renderGantt(lastCompute);
+    showDragTip(e.clientX, e.clientY);
+  }
+
+  document.getElementById("ganttBody").addEventListener("pointerdown", e => {
+    if (e.button !== undefined && e.button !== 0) return;
+    const el = e.target.closest(".bar, .milestone");
+    if (!el) return;
+    startDrag(e, Number(el.dataset.id));
+  });
+
+  document.getElementById("addTaskBtn").addEventListener("click", () => {
+    const name = document.getElementById("newName").value.trim();
+    if (!name) { alert("Give the task a name first."); return; }
+    const trade = document.getElementById("newTrade").value.trim();
+    const milestone = document.getElementById("newMilestone").checked;
+    const duration = milestone ? 0 : Math.max(0, Number(document.getElementById("newDuration").value)||0);
+    const predecessors = parsePredInput(document.getElementById("newPred").value);
+    const badPred = predecessors.find(p => !state.tasks.some(t => t.id === p.id));
+    if (badPred) { alert("No task with ID #" + badPred.id + " exists."); return; }
+    state.tasks.push(T(state.nextId++, name, trade, duration, predecessors, milestone));
+    document.getElementById("newName").value = ""; document.getElementById("newTrade").value = "";
+    document.getElementById("newDuration").value = "1"; document.getElementById("newPred").value = "";
+    document.getElementById("newMilestone").checked = false;
+    renderAll();
+  });
+
+  document.getElementById("setBaselineBtn").addEventListener("click", () => {
+    if (!lastCompute) { alert("Fix the schedule error before setting a baseline."); return; }
+    if (state.baseline && !confirm("Replace the existing baseline with the current schedule?")) return;
+    const byId = {};
+    for (const t of state.tasks) {
+      const r = lastCompute.byId.get(t.id);
+      if (r) byId[t.id] = { startDate: r.startDate, endDate: r.endDate };
+    }
+    state.baseline = { setAt: toISO(new Date()), projectFinishDate: toISO(lastCompute.projectFinishDate), byId };
+    renderAll();
+  });
+  document.getElementById("clearBaselineBtn").addEventListener("click", () => {
+    if (!confirm("Clear the saved baseline?")) return;
+    state.baseline = null;
+    renderAll();
+  });
+
+  document.getElementById("sampleBtn").addEventListener("click", () => {
+    if (state.tasks.length && !confirm("Replace the current task list with the standard sample schedule? This also clears this project's baseline and change orders, since they'd no longer line up.")) return;
+    state.tasks = sampleTasks(); state.nextId = 99; state.baseline = null; state.changeOrders = []; state.nextCOId = 1;
+    renderAll(); renderBudget(); renderChangeOrders();
+  });
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    if (!confirm("Remove all tasks? This also clears this project's baseline and change orders.")) return;
+    state.tasks = []; state.nextId = 1; state.baseline = null; state.changeOrders = []; state.nextCOId = 1;
+    renderAll(); renderBudget(); renderChangeOrders();
+  });
+
+  /* ============ autosave (localStorage) ============
+     Persists the full multi-project state to this browser automatically, so refreshing or closing
+     the tab never loses work. This is separate from Export/Import JSON, which remains the way to
+     move a schedule to another device or back it up outside the browser. */
+  const AUTOSAVE_KEY = "millwoodCriticalPathSchedule.autosave.v1";
+
+  function serializeAll() {
+    saveActiveIntoProjects();
+    return {
+      formatVersion: 2,
+      activeProjectId: state.activeProjectId,
+      nextProjectId: state.nextProjectId,
+      projects: state.projects,
+      exportedAt: toISO(new Date()),
+    };
+  }
+
+  function autosaveNow() {
+    try {
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(serializeAll()));
+      dirty = false;
+      updateSaveIndicator();
+    } catch (err) {
+      // Storage unavailable/full (e.g. private browsing) — autosave just won't persist this time.
+      // Export JSON still works regardless, so no data is unrecoverable.
+      console.warn("Autosave failed:", err);
+    }
+  }
+
+  function loadAutosaveIfPresent() {
+    try {
+      const raw = localStorage.getItem(AUTOSAVE_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!Array.isArray(data.projects) || !data.projects.length) return false;
+      const projects = data.projects.map(normalizeProject);
+      const activeId = data.activeProjectId != null && projects.some(p => p.id === data.activeProjectId)
+        ? data.activeProjectId : projects[0].id;
+      state.projects = projects;
+      state.nextProjectId = data.nextProjectId || (Math.max(0, ...projects.map(p => p.id)) + 1);
+      activateProjectData(projects.find(p => p.id === activeId) || projects[0]);
+      return true;
+    } catch (err) {
+      console.warn("Could not load autosaved schedule:", err);
+      return false;
+    }
+  }
+
+  // Check every few seconds for unsaved edits and persist them — catches every mutation path
+  // without needing to hook autosave into each individual edit handler.
+  setInterval(() => { if (dirty) autosaveNow(); }, 4000);
+
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const data = serializeAll();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "millwood-homes-schedule.json"; // fixed name so repeat exports overwrite the same file in a synced folder
+    document.body.appendChild(a); a.click(); a.remove();
+    dirty = false;
+    updateSaveIndicator();
+  });
+  document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
+  document.getElementById("importFile").addEventListener("change", e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        let projects, activeId, nextProjId;
+        if (Array.isArray(data.projects)) {
+          // current multi-project format
+          projects = data.projects.map(normalizeProject);
+          if (!projects.length) throw new Error("File has no projects in it");
+          activeId = data.activeProjectId != null && projects.some(p => p.id === data.activeProjectId) ? data.activeProjectId : projects[0].id;
+          nextProjId = data.nextProjectId || (Math.max(0, ...projects.map(p => p.id)) + 1);
+        } else if (Array.isArray(data.tasks)) {
+          // legacy single-project export (from before multi-project support) — wrap it as one project
+          const legacy = normalizeProject({
+            id: 1, name: "Imported Project",
+            startDate: data.startDate, threshold: data.threshold,
+            tasks: data.tasks, nextId: data.nextId,
+            subs: data.subs, nextSubId: data.nextSubId,
+          });
+          projects = [legacy]; activeId = 1; nextProjId = 2;
+        } else {
+          throw new Error("Unrecognized file format (no tasks or projects found)");
+        }
+        state.projects = projects;
+        state.nextProjectId = nextProjId;
+        activateProjectData(projects.find(p => p.id === activeId) || projects[0]);
+        renderAll({ clean: true });
+        renderSubs(); renderBudget(); renderChangeOrders(); renderProjectSwitcher();
+        dirty = false; updateSaveIndicator(); // explicit: a fresh import should always read as "saved", not "unsaved"
+      } catch (err) { alert("Could not read that file: " + err.message); }
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (dirty) autosaveNow();
+  });
+
+  loadAutosaveIfPresent();
+  dirty = false;
+
+  renderAll({ clean: true });
+  renderSubs();
+  renderBudget();
+  renderChangeOrders();
+  renderProjectSwitcher();
+  updateSaveIndicator();
+})();
+</script>
+</body>
+</html>

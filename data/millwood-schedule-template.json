@@ -1,0 +1,2203 @@
+{
+  "formatVersion": 2,
+  "activeProjectId": 1,
+  "nextProjectId": 2,
+  "projects": [
+    {
+      "id": 1,
+      "name": "Sample Project",
+      "startDate": "2026-08-17",
+      "threshold": 3,
+      "tasks": [
+        {
+          "id": 1,
+          "name": "Site selection / land purchase",
+          "trade": "Owner / Buyer",
+          "duration": 5,
+          "predecessors": [],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 2,
+          "name": "Soil / percolation test",
+          "trade": "Soil Testing Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 1
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 3,
+          "name": "Boundary & topographic survey",
+          "trade": "Surveyor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 1
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 4,
+          "name": "Architectural design / construction drawings",
+          "trade": "Architect",
+          "duration": 20,
+          "predecessors": [
+            {
+              "id": 2
+            },
+            {
+              "id": 3
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 5,
+          "name": "Structural engineering (if required)",
+          "trade": "Structural Engineer",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 4
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 6,
+          "name": "Energy code compliance docs (Manual J/D/S, HERS)",
+          "trade": "Energy Consultant",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 4
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 7,
+          "name": "Building permit application & approval",
+          "trade": "Permitting / Architect",
+          "duration": 20,
+          "predecessors": [
+            {
+              "id": 5
+            },
+            {
+              "id": 6
+            },
+            {
+              "id": 8
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 8,
+          "name": "Zoning approval / variance (if required)",
+          "trade": "General Contractor",
+          "duration": 10,
+          "predecessors": [
+            {
+              "id": 4
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 9,
+          "name": "Septic system design & permit (if not on sewer)",
+          "trade": "Septic Contractor",
+          "duration": 10,
+          "predecessors": [
+            {
+              "id": 2
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 10,
+          "name": "Well permit / water source approval (if not on public water)",
+          "trade": "Well Drilling Contractor",
+          "duration": 10,
+          "predecessors": [
+            {
+              "id": 2
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 11,
+          "name": "Construction loan / financing closing",
+          "trade": "Lender",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 7
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 12,
+          "name": "Builder's risk & liability insurance bound",
+          "trade": "Insurance Agent",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 11
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 13,
+          "name": "Subcontractor bidding & selection",
+          "trade": "General Contractor",
+          "duration": 10,
+          "predecessors": [
+            {
+              "id": 4
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 14,
+          "name": "Order long-lead items (trusses, windows, custom cabinets, garage doors)",
+          "trade": "General Contractor",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 13
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 15,
+          "name": "Site mobilization (temp power, toilet, dumpster, signage)",
+          "trade": "General Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 7
+            },
+            {
+              "id": 11
+            },
+            {
+              "id": 12
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 16,
+          "name": "Erosion control / silt fencing",
+          "trade": "Excavation Contractor",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 15
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 17,
+          "name": "Tree / land clearing",
+          "trade": "Excavation Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 16
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 18,
+          "name": "Rough grading",
+          "trade": "Excavation Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 17
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 19,
+          "name": "Temporary construction access / driveway",
+          "trade": "Excavation Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 18
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 20,
+          "name": "Excavation for foundation",
+          "trade": "Excavation Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 18
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 21,
+          "name": "Utility trenching (water, sewer, electric service)",
+          "trade": "Utility Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 18
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 22,
+          "name": "Septic system installation (if applicable)",
+          "trade": "Septic Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 9
+            },
+            {
+              "id": 20
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 23,
+          "name": "Well drilling (if applicable)",
+          "trade": "Well Drilling Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 10
+            },
+            {
+              "id": 18
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 24,
+          "name": "Foundation layout / stakeout",
+          "trade": "Surveyor",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 20
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 25,
+          "name": "Footing excavation",
+          "trade": "Excavation Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 24
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 26,
+          "name": "Footing forms & rebar",
+          "trade": "Concrete Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 25
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 27,
+          "name": "Footing inspection",
+          "trade": "Building Inspector",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 26
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 28,
+          "name": "Pour footings",
+          "trade": "Concrete Contractor",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 27
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 29,
+          "name": "Foundation walls / stem walls (form & pour, or block)",
+          "trade": "Concrete Contractor",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 28
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 30,
+          "name": "Foundation inspection",
+          "trade": "Building Inspector",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 29
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 31,
+          "name": "Waterproofing / damp-proofing",
+          "trade": "Concrete Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 30
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 32,
+          "name": "Foundation drainage (French drain / gravel)",
+          "trade": "Excavation Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 31
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 33,
+          "name": "Backfill",
+          "trade": "Excavation Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 32
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 34,
+          "name": "Termite pre-treatment",
+          "trade": "Pest Control",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 33
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 35,
+          "name": "Slab prep (vapor barrier, gravel, mesh/rebar)",
+          "trade": "Concrete Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 34
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 36,
+          "name": "Under-slab plumbing rough-in",
+          "trade": "Plumber",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 35
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 37,
+          "name": "Pour slab",
+          "trade": "Concrete Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 36
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 38,
+          "name": "Wall construction (sill plate, floor framing, subfloor, wall framing & sheathing)",
+          "trade": "Framing Crew",
+          "duration": 13,
+          "predecessors": [
+            {
+              "id": 37
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 43,
+          "name": "Roof construction (truss set & roof sheathing)",
+          "trade": "Framing Crew",
+          "duration": 7,
+          "predecessors": [
+            {
+              "id": 38
+            },
+            {
+              "id": 14
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 45,
+          "name": "Framing punchout (inspection, house wrap, windows & exterior doors)",
+          "trade": "Framing Crew",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 43
+            },
+            {
+              "id": 14
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 48,
+          "name": "Roofing installation (underlayment, roofing material, flashing/vents)",
+          "trade": "Roofing Contractor",
+          "duration": 6,
+          "predecessors": [
+            {
+              "id": 43
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 51,
+          "name": "Gutters (rough or final)",
+          "trade": "Gutter Contractor",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 48
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 52,
+          "name": "Plumbing rough-in (supply/DWV, tub & shower set)",
+          "trade": "Plumber",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 45
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 53,
+          "name": "Electrical rough-in (wiring, panel set)",
+          "trade": "Electrician",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 45
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 54,
+          "name": "HVAC rough-in (ductwork, line sets, equipment set)",
+          "trade": "HVAC Contractor",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 45
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 55,
+          "name": "Low-voltage rough-in (data, security, A/V)",
+          "trade": "Low-Voltage Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 45
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 56,
+          "name": "Fireplace / chimney rough-in",
+          "trade": "Fireplace Installer",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 45
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 57,
+          "name": "Rough-in inspections (plumbing, electrical, mechanical)",
+          "trade": "Building Inspector",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 52
+            },
+            {
+              "id": 53
+            },
+            {
+              "id": 54
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 58,
+          "name": "Exterior flashing / sealant details completed",
+          "trade": "Siding Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 45
+            },
+            {
+              "id": 48
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 59,
+          "name": "Insulation installation (batt / blown / spray foam)",
+          "trade": "Insulation Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 57
+            },
+            {
+              "id": 58
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 60,
+          "name": "Air sealing",
+          "trade": "Insulation Contractor",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 59
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 61,
+          "name": "Insulation inspection",
+          "trade": "Building Inspector",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 60
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 62,
+          "name": "Drywall hang",
+          "trade": "Drywall Contractor",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 61
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 63,
+          "name": "Drywall tape & mud (multiple coats)",
+          "trade": "Drywall Contractor",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 62
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 64,
+          "name": "Drywall texture",
+          "trade": "Drywall Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 63
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 65,
+          "name": "Sand & prime/seal coat",
+          "trade": "Drywall Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 64
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 66,
+          "name": "Siding installation",
+          "trade": "Siding Contractor",
+          "duration": 6,
+          "predecessors": [
+            {
+              "id": 58
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 67,
+          "name": "Exterior trim (fascia, corner boards)",
+          "trade": "Siding Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 66
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 68,
+          "name": "Soffit & fascia",
+          "trade": "Siding Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 66
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 69,
+          "name": "Exterior masonry / stone veneer",
+          "trade": "Masonry Contractor",
+          "duration": 4,
+          "predecessors": [
+            {
+              "id": 66
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 70,
+          "name": "Exterior painting / staining",
+          "trade": "Painting Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 67
+            },
+            {
+              "id": 68
+            },
+            {
+              "id": 69
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 71,
+          "name": "Garage door installation",
+          "trade": "Garage Door Installer",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 66
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 72,
+          "name": "Driveway / walkway concrete",
+          "trade": "Concrete Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 70
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 81,
+          "name": "Tile work (baths, backsplash)",
+          "trade": "Tile Contractor",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 65
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 79,
+          "name": "Interior painting (walls, ceilings, trim)",
+          "trade": "Painting Contractor",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 81
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 73,
+          "name": "Interior trim (door/window casing, baseboard)",
+          "trade": "Trim Carpenter",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 79
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 74,
+          "name": "Interior door hanging",
+          "trade": "Trim Carpenter",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 73
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 75,
+          "name": "Stair rails / balusters",
+          "trade": "Trim Carpenter",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 73
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 76,
+          "name": "Cabinet installation",
+          "trade": "Cabinet Installer",
+          "duration": 4,
+          "predecessors": [
+            {
+              "id": 73
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 77,
+          "name": "Countertop templating",
+          "trade": "Countertop Fabricator",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 76
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 78,
+          "name": "Countertop fabrication & installation",
+          "trade": "Countertop Fabricator",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 77,
+              "lag": 5
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 80,
+          "name": "Flooring installation (hardwood/tile/LVP/carpet)",
+          "trade": "Flooring Contractor",
+          "duration": 5,
+          "predecessors": [
+            {
+              "id": 73
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 82,
+          "name": "Plumbing fixture trim-out (sinks, toilets, faucets, tub/shower)",
+          "trade": "Plumber",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 78
+            },
+            {
+              "id": 80
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 83,
+          "name": "Electrical trim-out (devices, switches, fixtures)",
+          "trade": "Electrician",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 80
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 84,
+          "name": "HVAC trim-out (registers, grilles, thermostat, startup)",
+          "trade": "HVAC Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 80
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 85,
+          "name": "Low-voltage device / equipment installation",
+          "trade": "Low-Voltage Contractor",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 80
+            },
+            {
+              "id": 55
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 86,
+          "name": "Appliance installation",
+          "trade": "Appliance Installer",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 82
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 87,
+          "name": "Final grading",
+          "trade": "Landscaper",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 72
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 88,
+          "name": "Landscaping / sod / planting",
+          "trade": "Landscaper",
+          "duration": 4,
+          "predecessors": [
+            {
+              "id": 87
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 89,
+          "name": "Final hardscape (patios, walkways not done earlier)",
+          "trade": "Landscaper",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 87
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 90,
+          "name": "Gutters (final, if deferred)",
+          "trade": "Gutter Contractor",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 70
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 91,
+          "name": "Exterior lighting finalization",
+          "trade": "Electrician",
+          "duration": 1,
+          "predecessors": [
+            {
+              "id": 83
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "normal",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 92,
+          "name": "Final construction cleaning",
+          "trade": "Cleaning Crew",
+          "duration": 2,
+          "predecessors": [
+            {
+              "id": 82
+            },
+            {
+              "id": 83
+            },
+            {
+              "id": 84
+            },
+            {
+              "id": 85
+            },
+            {
+              "id": 86
+            },
+            {
+              "id": 88
+            },
+            {
+              "id": 89
+            },
+            {
+              "id": 90
+            },
+            {
+              "id": 91
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "near",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 93,
+          "name": "Punch list walkthrough",
+          "trade": "General Contractor",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 92
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 94,
+          "name": "Punch list corrections",
+          "trade": "General Contractor",
+          "duration": 3,
+          "predecessors": [
+            {
+              "id": 93
+            }
+          ],
+          "milestone": false,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 95,
+          "name": "Final inspections (building, electrical, plumbing, mechanical)",
+          "trade": "Building Inspector",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 94
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 96,
+          "name": "Certificate of Occupancy issued",
+          "trade": "City / County",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 95
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 97,
+          "name": "Final owner/buyer walkthrough",
+          "trade": "General Contractor",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 96
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        },
+        {
+          "id": 98,
+          "name": "Closing / move-in",
+          "trade": "Title Company",
+          "duration": 0,
+          "predecessors": [
+            {
+              "id": 97
+            }
+          ],
+          "milestone": true,
+          "status": "not-started",
+          "percent": 0,
+          "leadDays": 0,
+          "forceStatus": "critical",
+          "estCost": 0,
+          "actualCost": 0
+        }
+      ],
+      "nextId": 99,
+      "subs": [
+        {
+          "id": 1,
+          "trade": "Owner / Buyer",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Owner-side responsibility. Covers securing the building lot through purchase or existing ownership, and confirming the site is ready to begin due diligence (soil testing, survey, design).",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 2,
+          "trade": "Soil Testing Contractor",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Perform soil and percolation testing on the lot to confirm suitability for the planned foundation type and septic system, and provide a written report/certification for the architect, engineer, and permitting agencies.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 3,
+          "trade": "Surveyor",
+          "company": "OnPoint Surveying",
+          "contact": "Dan Venable",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Provide a boundary and topographic survey of the property, and later stake out the foundation layout on site so excavation and footings can be placed accurately per the approved plans.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 4,
+          "trade": "Architect",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Produce full architectural design and construction drawings (floor plans, elevations, sections, and details) sufficient for permitting, engineering, and construction, and be available to answer design questions through permitting and framing.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 5,
+          "trade": "Structural Engineer",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Provide structural engineering calculations and stamped drawings (foundation, framing, load paths) as required by the building department, coordinating with the architect on any design revisions.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 6,
+          "trade": "Energy Consultant",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Prepare energy code compliance documentation (Manual J/D/S load calculations, HERS rating documentation) required for permitting and to guide HVAC and insulation design.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 7,
+          "trade": "Permitting / Architect",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Prepare and submit the building permit application package and manage the review/approval process with the local building department through to permit issuance.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 8,
+          "trade": "General Contractor",
+          "company": "Millwood Homes",
+          "contact": "Sam St. Clair",
+          "phone": "706-809-3919",
+          "email": "sam@millwoodhomes.com",
+          "notes": "",
+          "scopeOfWork": "Overall project management: zoning approval, subcontractor bidding and selection, ordering long-lead materials, mobilizing the site, and leading the final punch list, corrections, and owner walkthrough through project closeout.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 9,
+          "trade": "Septic Contractor",
+          "company": "CM Septic",
+          "contact": "Cole Nattier",
+          "phone": "706-474-5774",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Design and permit the septic system (where the site is not on public sewer), then install the septic system once foundation excavation is complete and the permit is in hand.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 10,
+          "trade": "Well Drilling Contractor",
+          "company": "Robinson Well Company",
+          "contact": "Robinson Well Company",
+          "phone": "770-267-7027",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Secure well permit/water source approval (where not on public water) and drill and complete the well once the site is graded and access is available.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 11,
+          "trade": "Lender",
+          "company": "Vallant Bank",
+          "contact": "Marcus Shubert",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Underwrite and close the construction loan/financing so that funds are available to mobilize the site and pay subcontractors per the draw schedule.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 12,
+          "trade": "Insurance Agent",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Bind builder's risk and general liability insurance coverage for the project prior to site mobilization and keep coverage active through completion.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 13,
+          "trade": "Excavation Contractor",
+          "company": "Ben Bramlett",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Site earthwork package: install erosion control/silt fencing, clear the lot, rough grade, build temporary construction access, excavate for the foundation and footings, and later install foundation drainage and backfill.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 14,
+          "trade": "Utility Contractor",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Trench and rough in water, sewer, and electrical service lines from the utility source to the house after rough grading is complete.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 15,
+          "trade": "Concrete Contractor",
+          "company": "LCI Construction",
+          "contact": "Joel Maurder",
+          "phone": "707-834-1270",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Form and pour all concrete flatwork and structural concrete: footings, foundation/stem walls, waterproofing, slab prep and pour, and later the driveway and walkway concrete.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 16,
+          "trade": "Building Inspector",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Perform all required municipal inspections at each construction milestone (footing, foundation, framing, rough-in, insulation, and final) and sign off before work proceeds to the next phase.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 17,
+          "trade": "Pest Control",
+          "company": "Houseman Pest Control",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Apply termite pre-treatment to the soil/foundation area prior to slab pour per code and manufacturer requirements.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 18,
+          "trade": "Plumber",
+          "company": "Dunagan Plumbing",
+          "contact": "Mitchel Dunagan",
+          "phone": "678-617-4477",
+          "email": "mdunaganplumbing@gmail.com",
+          "notes": "",
+          "scopeOfWork": "Complete all plumbing scopes: under-slab rough-in, above-grade rough-in (supply/DWV, tub and shower sets), and final fixture trim-out (sinks, toilets, faucets).",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 19,
+          "trade": "Framing Crew",
+          "company": "B&O Construction",
+          "contact": "Omar Martinez",
+          "phone": "470-525-6612",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Frame the structure from the ground up: sill plate, floor system, subfloor, exterior and interior wall framing, sheathing, roof framing/truss set, roof sheathing, house wrap, and setting windows and exterior doors to achieve dry-in.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 20,
+          "trade": "Roofing Contractor",
+          "company": "A+ Roofing",
+          "contact": "Neftali",
+          "phone": "678-614-8797",
+          "email": "aplusroofingservices@yahoo.com",
+          "notes": "",
+          "scopeOfWork": "Install roof underlayment, the finished roofing material (shingle/metal/tile per spec), and all flashing, vents, and penetration details to make the roof watertight.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 21,
+          "trade": "Gutter Contractor",
+          "company": "Lorenzo Gutters",
+          "contact": "Lorenzo",
+          "phone": "678-360-4363",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Furnish and install gutters and downspouts, both the rough set during construction and the final tie-in near project completion.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 22,
+          "trade": "Electrician",
+          "company": "ESM Electrical",
+          "contact": "Anthony Sagrero",
+          "phone": "678-677-1398",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Complete all electrical work: rough-in wiring and panel set, final device/switch/fixture trim-out, and exterior lighting finalization.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 23,
+          "trade": "HVAC Contractor",
+          "company": "JMI Services",
+          "contact": "Malcolm Irvin",
+          "phone": "770-712-3572",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Install the HVAC system: rough-in ductwork, refrigerant line sets and equipment set, followed by trim-out of registers/grilles/thermostat and system startup/commissioning.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 24,
+          "trade": "Low-Voltage Contractor",
+          "company": "ESM Electrical",
+          "contact": "Anthony Sagrero",
+          "phone": "678-360-4363",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Rough in and later install low-voltage systems including data/network wiring, security, and audio/video equipment.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 25,
+          "trade": "Fireplace Installer",
+          "company": "DBM",
+          "contact": "Barry Helms",
+          "phone": "404-516-8125",
+          "email": "bhelms@doorsbymike.com",
+          "notes": "",
+          "scopeOfWork": "Rough in the fireplace/chimney system per manufacturer specifications and code requirements.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 26,
+          "trade": "Siding Contractor",
+          "company": "JMI Installation",
+          "contact": "Juan Islas",
+          "phone": "770-519-8214",
+          "email": "islas_siding@hotmail.com",
+          "notes": "",
+          "scopeOfWork": "Complete the exterior weather envelope: flashing and sealant details, siding installation, exterior trim, and soffit/fascia.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 27,
+          "trade": "Insulation Contractor",
+          "company": "Porter",
+          "contact": "Asher Standridge",
+          "phone": "678-977-6746",
+          "email": "astandridge@kpiaf.com",
+          "notes": "",
+          "scopeOfWork": "Install wall, floor, and attic insulation (batt, blown, or spray foam per spec) and perform air sealing prior to insulation inspection.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 28,
+          "trade": "Drywall Contractor",
+          "company": "New Vision Drywall",
+          "contact": "Tony Armour",
+          "phone": "770-527-5222",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Hang, tape, mud (multiple coats), texture, and sand/prime all interior drywall to a paint-ready finish.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 29,
+          "trade": "Masonry Contractor",
+          "company": "Custom Masonry and Repairs",
+          "contact": "Carlos Granados",
+          "phone": "678-988-7023",
+          "email": "carlos@mycustommasonry.com",
+          "notes": "",
+          "scopeOfWork": "Install exterior masonry and stone veneer per the architectural elevations after siding is underway.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 30,
+          "trade": "Painting Contractor",
+          "company": "Fino",
+          "contact": "Fino",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Paint or stain all exterior surfaces after trim/siding/masonry are complete, and paint all interior walls, ceilings, and trim prior to flooring and finish carpentry.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 31,
+          "trade": "Garage Door Installer",
+          "company": "DBM",
+          "contact": "Barry Helms",
+          "phone": "404-516-8125",
+          "email": "bhelms@doorsbymike.com",
+          "notes": "",
+          "scopeOfWork": "Furnish and install the garage door(s) and opener(s) once siding is underway.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 32,
+          "trade": "Tile Contractor",
+          "company": "Harris Floor Coverings",
+          "contact": "Bud Harris",
+          "phone": "770-560-4480",
+          "email": "carpet99@harrisfloorcoverings.com",
+          "notes": "",
+          "scopeOfWork": "Install tile work in bathrooms and kitchen backsplash areas per finish selections after drywall finishing is complete.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 33,
+          "trade": "Trim Carpenter",
+          "company": "DJT",
+          "contact": "David Turner",
+          "phone": "770-560-9184",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Install interior finish carpentry: door and window casing, baseboard, interior door hanging, and stair rails/balusters.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 34,
+          "trade": "Cabinet Installer",
+          "company": "MTW Cabinetry",
+          "contact": "Howard Mize",
+          "phone": "404-427-2749",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Furnish and install all kitchen and bathroom cabinetry per the approved design and finish selections.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 35,
+          "trade": "Countertop Fabricator",
+          "company": "All Concepts",
+          "contact": "Tia Seymour",
+          "phone": "404-387-0569",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Template countertops after cabinet installation, then fabricate and install finished countertops.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 36,
+          "trade": "Flooring Contractor",
+          "company": "Harris Floor Coverings",
+          "contact": "Bud Harris",
+          "phone": "770-560-4480",
+          "email": "carpet99@harrisfloorcoverings.com",
+          "notes": "",
+          "scopeOfWork": "Furnish and install finish flooring (hardwood, tile, LVP, or carpet per selections) after interior trim is complete.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 37,
+          "trade": "Appliance Installer",
+          "company": "City Electrical",
+          "contact": "Joanna Rodgers",
+          "phone": "770-532-4123,1215",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Deliver and install kitchen and laundry appliances after plumbing fixture trim-out is complete.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 38,
+          "trade": "Landscaper",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Final grade the site, install landscaping/sod/planting, and complete final hardscape (patios, walkways) not addressed earlier in construction.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 39,
+          "trade": "Cleaning Crew",
+          "company": "Grubi Cleaning",
+          "contact": "Javier",
+          "phone": "470-263-0882",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Perform final construction cleaning of the entire house after all trades have finished their trim-out and finish work, preparing it for the punch list walkthrough.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 40,
+          "trade": "City / County",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Municipal authority responsible for final inspections sign-off and issuance of the Certificate of Occupancy.",
+          "initialEmailSentAt": null
+        },
+        {
+          "id": 41,
+          "trade": "Title Company",
+          "company": "",
+          "contact": "",
+          "phone": "",
+          "email": "",
+          "notes": "",
+          "scopeOfWork": "Handle closing paperwork and disbursement for the final sale/transfer of the completed home to the owner/buyer.",
+          "initialEmailSentAt": null
+        }
+      ],
+      "nextSubId": 42,
+      "changeOrders": [],
+      "nextCOId": 1,
+      "materials": [
+        {
+          "id": 1,
+          "item": "Roof trusses",
+          "taskId": 43,
+          "supplier": "",
+          "deliveryDate": "",
+          "leadDays": 25,
+          "cost": 0,
+          "poNumber": "",
+          "notes": "",
+          "deliveryTaskId": null
+        },
+        {
+          "id": 2,
+          "item": "Windows & exterior doors",
+          "taskId": 45,
+          "supplier": "",
+          "deliveryDate": "",
+          "leadDays": 30,
+          "cost": 0,
+          "poNumber": "",
+          "notes": "",
+          "deliveryTaskId": null
+        },
+        {
+          "id": 3,
+          "item": "Custom cabinets",
+          "taskId": 76,
+          "supplier": "",
+          "deliveryDate": "",
+          "leadDays": 35,
+          "cost": 0,
+          "poNumber": "",
+          "notes": "",
+          "deliveryTaskId": null
+        },
+        {
+          "id": 4,
+          "item": "Garage doors",
+          "taskId": 71,
+          "supplier": "",
+          "deliveryDate": "",
+          "leadDays": 14,
+          "cost": 0,
+          "poNumber": "",
+          "notes": "",
+          "deliveryTaskId": null
+        }
+      ],
+      "nextMatId": 5,
+      "baseline": null,
+      "pmName": "Sam St. Clair",
+      "pmPhone": "706-809-3919",
+      "pmEmail": "sam@millwoodhomes.com",
+      "plansLink": ""
+    }
+  ],
+  "exportedAt": "2026-08-17"
+}
