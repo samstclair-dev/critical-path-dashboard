@@ -233,6 +233,19 @@
   .row-timeline { position: relative; flex: none; z-index:2; }
 
   .row-info input[type=text], .row-info input[type=number] { padding: 3px 5px; font-size: 11.5px; }
+
+  /* ---------- clean view (read-only sidebar + on-bar labels; edit controls hidden entirely) ---------- */
+  [data-viewmode="clean"] .edit-only { display: none !important; }
+  .clean-row-info { display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 2px 0; overflow: hidden; }
+  .clean-row-info .cr-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .clean-row-info .cr-sub { font-size: 10.5px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .clean-row-info .cr-flag.crit { color: var(--critical); }
+  .clean-row-info .cr-flag.near { color: #b5790f; }
+  :root[data-theme="dark"] .clean-row-info .cr-flag.near { color: var(--warning); }
+  .bar-tag {
+    position: absolute; top: 9px; height: 16px; left: 0; display: flex; align-items: center;
+    font-size: 11px; white-space: nowrap; color: var(--text-primary); pointer-events: none; z-index: 2;
+  }
   .col-id { width: 28px; font-size: 10.5px; color: var(--muted); text-align:right; flex:none; }
   .col-name { width: 168px; flex: none; }
   .col-trade { width: 128px; flex: none; }
@@ -344,8 +357,9 @@
       </label>
       <button id="themeToggle" title="Toggle dark mode">🌓 Theme</button>
       <span id="saveIndicator" class="save-indicator clean">✓ Saved to file</span>
-      <button id="exportBtn">⬇ Export JSON</button>
-      <button id="importBtn">⬆ Import JSON</button>
+      <button id="exportProjectBtn" title="Download just the current project as its own file">⬇ Export this project</button>
+      <button id="exportBtn" class="ghost" title="Download every project in your list as one backup file">⬇ Export all projects</button>
+      <button id="importBtn" title="Load a schedule file — it's added as a new project, your existing projects are kept">⬆ Import JSON</button>
       <input type="file" id="importFile" accept=".json,application/json" style="display:none" />
     </div>
   </header>
@@ -378,6 +392,10 @@
 
   <div class="toolbar">
     <div class="group">
+      <div class="zoomgroup" id="viewModeGroup" title="Clean view: just look and drag to reschedule. Edit view: full editing controls.">
+        <button data-viewmode="clean" class="active">🔭 Clean view</button>
+        <button data-viewmode="edit">✎ Edit view</button>
+      </div>
       <div class="zoomgroup" id="zoomGroup">
         <button data-zoom="month">Month</button>
         <button data-zoom="week" class="active">Week</button>
@@ -388,7 +406,7 @@
         <span>Show dependency lines</span>
       </label>
     </div>
-    <div class="group">
+    <div class="group edit-only">
       <button id="setBaselineBtn" class="ghost" title="Snapshot the current planned dates so you can see drift later">📌 Set baseline</button>
       <button id="clearBaselineBtn" class="ghost" style="display:none">✕ Clear baseline</button>
       <button id="sampleBtn" class="ghost">Reset to sample schedule</button>
@@ -416,7 +434,7 @@
     </div>
   </div>
 
-  <div class="add-row">
+  <div class="add-row edit-only">
     <label class="field">Task name<input type="text" id="newName" placeholder="e.g. Gutter Install" style="width:180px" /></label>
     <label class="field">Trade / Sub<input type="text" id="newTrade" placeholder="e.g. Gutter Contractor" style="width:140px" /></label>
     <label class="field">Duration (work days)<input type="number" id="newDuration" min="0" value="1" style="width:70px" /></label>
@@ -433,10 +451,13 @@
     chart to reschedule it — its dependents recalculate live as you drag (press <b>Esc</b> to cancel a drag). A task with predecessors can't be
     dragged earlier than they allow; it will stop at the earliest feasible date. Your work <b>autosaves to this browser</b> automatically
     (the indicator up top shows autosave status) — closing the tab or reloading won't lose anything.
-    <br>Autosave only lives in this browser on this device, though. Use <b>Export JSON</b> whenever you want a portable backup, or to carry
-    the schedule to your phone, another computer, or a synced folder (Dropbox, Google Drive, OneDrive, iCloud Drive). Since Export always uses the
-    same filename, re-exporting after edits overwrites the same file rather than piling up copies (if your browser asks where to
-    save, just choose "Replace"). Use <b>Import JSON</b> to load a schedule from a file, which will also replace what's autosaved here.
+    <br>Autosave only lives in this browser on this device, though. Use <b>Export this project</b> for a portable backup of just what
+    you're viewing, or <b>Export all projects</b> to back up your whole project list at once — either way you can carry the file to your
+    phone, another computer, or a synced folder (Dropbox, Google Drive, OneDrive, iCloud Drive). Since each carries a fixed filename,
+    re-exporting after edits overwrites the same file rather than piling up copies (if your browser asks where to save, just choose
+    "Replace"). Use <b>Import JSON</b> to load a schedule file — it's always added as a new project in the dropdown above, so your
+    existing projects are never overwritten. On the Subcontractors tab, <b>Import subs from file</b> instead pulls contact info into
+    the project you're currently viewing without touching its tasks — it only fills in fields that are still blank.
   </footer>
 
   </div><!-- /tab-schedule -->
@@ -448,6 +469,8 @@
         (case-insensitive), that task automatically shows the assigned company name — no need to retype it per task.
       </p>
       <button id="sendInitialSeqBtn" class="primary">📨 Send initial emails</button>
+      <button id="importSubsBtn" class="ghost" title="Fill in company/contact/phone/email/notes/scope for trades in THIS project from a JSON file — only blank fields are filled in, nothing you've already entered gets overwritten">⬆ Import subs from file</button>
+      <input type="file" id="importSubsFile" accept=".json,application/json" style="display:none" />
     </div>
     <div class="panel">
       <div class="subs-scroll" id="subsScroll">
@@ -477,7 +500,9 @@
     </div>
 
     <footer class="note">
-      This list is saved and reloaded together with your schedule via <b>Export JSON</b> / <b>Import JSON</b> on the Schedule tab.
+      This list travels with its project via <b>Export this project</b> / <b>Export all projects</b> / <b>Import JSON</b> on the
+      Schedule tab. To pull contact info into this project's list from a separate file without touching its tasks, use
+      <b>Import subs from file</b> above — it only fills in blank fields, so anything you've already typed in stays put.
       Use the <b>✉ Email</b> button next to a trade to open a pre-filled email in your own email app listing that trade's
       current tasks and dates — nothing is sent automatically, it just saves you writing it out.
     </footer>
@@ -821,6 +846,30 @@
     const match = subs.find(s => (s.trade || "").trim().toLowerCase() === t);
     return match ? match.company : "";
   }
+  // Merges an imported subs list into state.subs for the CURRENT project only: matches by trade name
+  // (case-insensitive), fills in any field that's still blank on the existing sub, and adds a new sub
+  // for any trade with no match. Never overwrites a field the user already filled in.
+  function mergeSubsFromFile(importedSubs) {
+    let updated = 0, added = 0;
+    const FIELDS = ["company", "contact", "phone", "email", "notes", "scopeOfWork"];
+    importedSubs.forEach(raw => {
+      const trade = (raw.trade || "").trim();
+      if (!trade) return;
+      const existing = state.subs.find(s => (s.trade || "").trim().toLowerCase() === trade.toLowerCase());
+      if (existing) {
+        let changed = false;
+        FIELDS.forEach(field => {
+          if (!existing[field] && raw[field]) { existing[field] = raw[field]; changed = true; }
+        });
+        if (changed) updated++;
+      } else {
+        const id = state.nextSubId++;
+        state.subs.push(S(id, trade, raw.company, raw.contact, raw.phone, raw.email, raw.notes, raw.scopeOfWork, raw.initialEmailSentAt));
+        added++;
+      }
+    });
+    return { updated, added };
+  }
 
   /* ============ change orders ============ */
   function CO(id, date, description, costImpact, scheduleImpactDays, status, approvedBy, notes) {
@@ -857,6 +906,7 @@
     showDeps: true,
     theme: "light",
     activeTab: "schedule",
+    viewMode: "clean", // "clean" = read-only + drag-to-reschedule only; "edit" = full editing controls
     // multi-project bookkeeping
     nextProjectId: 2,
     activeProjectId: firstProject.id,
@@ -920,6 +970,16 @@
     // current in-memory list of every project (active + saved), sorted by id, without mutating state
     saveActiveIntoProjects();
     return state.projects.slice().sort((a,b) => a.id - b.id);
+  }
+  // Appends a "(imported)" / "(imported 2)" suffix if the name collides with an existing project,
+  // so two same-named schedules from different files don't look identical in the dropdown.
+  function uniqueProjectName(name) {
+    const base = name || "Untitled Project";
+    const taken = new Set(state.projects.map(p => (p.name || "").toLowerCase()));
+    if (!taken.has(base.toLowerCase())) return base;
+    let n = 2;
+    while (taken.has(`${base} (imported ${n})`.toLowerCase())) n++;
+    return taken.has(`${base} (imported)`.toLowerCase()) ? `${base} (imported ${n})` : `${base} (imported)`;
   }
   function renderProjectSwitcher() {
     const list = allProjectsList();
@@ -1091,7 +1151,8 @@
       projectStart: parseISO(state.startDate), projectFinishDate: addCalDays(parseISO(state.startDate), 30) };
     c = cSafe;
     const dayWidth = ZOOM_WIDTH[state.zoom];
-    const infoWidth = 28+168+128+110+40+92+96+48+26+88+58+22 + 4*11 + 12; // exact sum of col widths + gaps + padding
+    const isClean = state.viewMode === "clean";
+    const infoWidth = isClean ? 240 : (28+168+128+110+40+92+96+48+26+88+58+22 + 4*11 + 12); // exact sum of col widths + gaps + padding
     const gridStart = c.projectStart;
     const gridEnd = addCalDays(c.projectFinishDate, 6);
     const totalDays = Math.max(1, dayOffset(gridStart, gridEnd) + 1);
@@ -1104,7 +1165,9 @@
     corner.style.width = infoWidth + "px";
     corner.style.minWidth = infoWidth + "px";
     corner.style.height = "36px";
-    corner.innerHTML = `<div class="info-cols">
+    corner.innerHTML = isClean
+      ? `<div class="info-cols"><span style="width:${infoWidth-12}px;padding-left:2px;">Task</span></div>`
+      : `<div class="info-cols">
         <span style="width:28px">#</span><span style="width:168px">Task</span><span style="width:128px">Trade</span>
         <span style="width:110px">Company</span><span style="width:40px">Dur</span><span style="width:92px">Preds</span><span style="width:96px">Status</span>
         <span style="width:48px">%</span><span style="width:26px">MS</span><span style="width:88px">Flag</span><span style="width:58px">Float</span><span style="width:22px"></span>
@@ -1190,7 +1253,17 @@
       const floatIcon = isCrit ? " ✕" : isNear ? " ⚠" : "";
       const company = lookupCompany(state.subs, t.trade);
       const forceVal = t.forceStatus || "";
-      info.innerHTML = `
+      if (isClean) {
+        const subLine = company ? `${t.trade} — ${company}` : (t.trade || "");
+        const flagIcon = isCrit ? '<span class="cr-flag crit">✕ Critical</span>' : isNear ? '<span class="cr-flag near">⚠ Near-crit</span>' : "";
+        info.innerHTML = `
+          <div class="clean-row-info">
+            <span class="cr-name">${t.milestone ? "◆ " : ""}${escapeAttr(t.name)}</span>
+            <span class="cr-sub">${escapeAttr(subLine)}${flagIcon ? " · " : ""}${flagIcon}</span>
+          </div>
+        `;
+      } else {
+        info.innerHTML = `
         <span class="col-id">#${t.id}</span>
         <input class="col-name" type="text" value="${escapeAttr(t.name)}" data-field="name" data-id="${t.id}">
         <input class="col-trade" type="text" list="tradesDatalist" value="${escapeAttr(t.trade||"")}" data-field="trade" data-id="${t.id}">
@@ -1213,6 +1286,7 @@
         <span class="col-float float-badge ${floatClass}" title="${isForced ? 'Manually pinned — computed float is '+floatNum : 'Computed from float'}">${floatNum}${floatIcon}${isForced?' 📌':''}</span>
         <span class="col-del"><button data-action="del" data-id="${t.id}" title="Delete task">✕</button></span>
       `;
+      }
       row.appendChild(info);
 
       const tl = document.createElement("div");
@@ -1231,9 +1305,11 @@
         const statusLine = isForced
           ? `\nManually marked ${isCrit ? "CRITICAL" : isNear ? "NEAR-CRITICAL" : "NORMAL"} (computed float: ${r.float}d)`
           : (isCrit ? " — CRITICAL PATH" : isNear ? ` — near-critical (float ${r.float}d)` : "");
+        const tagHtml = isClean ? `<div class="bar-tag" style="left:${endX+6}px">${escapeAttr(t.name)}</div>` : "";
         if (t.milestone) {
           const x = dayOffset(gridStart, parseISO(r.startDate)) * dayWidth + dayWidth/2;
-          tl.innerHTML = `<div class="milestone${draggingCls}${forcedCls} ${isDone?'done':''}" data-id="${t.id}" title="${escapeAttr(t.name)}${escapeAttr(companyLine)}\n${r.startDate} · float ${r.float}d${escapeAttr(isForced ? statusLine : "")}${isDone ? "\nDone" : ""}\nDrag to reschedule" style="left:${x}px;background:${isDone ? 'var(--good)' : color}"></div>`;
+          tl.innerHTML = `<div class="milestone${draggingCls}${forcedCls} ${isDone?'done':''}" data-id="${t.id}" title="${escapeAttr(t.name)}${escapeAttr(companyLine)}\n${r.startDate} · float ${r.float}d${escapeAttr(isForced ? statusLine : "")}${isDone ? "\nDone" : ""}\nDrag to reschedule" style="left:${x}px;background:${isDone ? 'var(--good)' : color}"></div>`
+            + (isClean ? `<div class="bar-tag" style="left:${x+dayWidth/2+6}px">${escapeAttr(t.name)}</div>` : "");
         } else {
           let barsHtml = "";
           for (const seg of segments) {
@@ -1244,7 +1320,7 @@
               <div class="fill-done" style="background:var(--good);width:${pct}%"></div>
             </div>`;
           }
-          tl.innerHTML = barsHtml + (isDone ? `<div class="bar-label" style="left:${(segments[0]?dayOffset(gridStart,segments[0].start)*dayWidth:0)+4}px">✓</div>` : "");
+          tl.innerHTML = barsHtml + (isDone ? `<div class="bar-label" style="left:${(segments[0]?dayOffset(gridStart,segments[0].start)*dayWidth:0)+4}px">✓</div>` : "") + tagHtml;
         }
       }
       // baseline ghost outline — positioned from the absolute dates captured at "Set baseline" time,
@@ -1838,6 +1914,29 @@
   });
   document.getElementById("depToggle").addEventListener("change", e => { state.showDeps = e.target.checked; renderGantt(lastCompute); });
 
+  // Scrolls the gantt horizontally so "today" sits near the left edge instead of opening on day one
+  // of a schedule that might be well underway. Only called at specific "fresh view" moments (below) —
+  // never from inside renderGantt itself, so it doesn't yank the scroll position while someone's
+  // actively scrolled elsewhere reviewing the chart.
+  function scrollGanttToToday() {
+    const scrollEl = document.getElementById("ganttScroll");
+    if (!scrollEl || !lastGridInfo) return;
+    const { gridStart, dayWidth } = lastGridInfo;
+    const t = new Date();
+    const todayUTC = new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()));
+    const offsetPx = dayOffset(gridStart, todayUTC) * dayWidth;
+    scrollEl.scrollLeft = Math.max(0, offsetPx - 80);
+  }
+
+  document.getElementById("viewModeGroup").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-viewmode]"); if (!btn) return;
+    state.viewMode = btn.dataset.viewmode;
+    [...document.getElementById("viewModeGroup").children].forEach(b => b.classList.toggle("active", b === btn));
+    document.documentElement.setAttribute("data-viewmode", state.viewMode);
+    renderGantt(lastCompute);
+    if (state.viewMode === "clean") scrollGanttToToday();
+  });
+
   document.getElementById("themeToggle").addEventListener("click", () => {
     state.theme = state.theme === "light" ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", state.theme);
@@ -2064,7 +2163,20 @@
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "millwood-homes-schedule.json"; // fixed name so repeat exports overwrite the same file in a synced folder
+    a.download = "millwood-homes-schedule-all-projects.json"; // fixed name so repeat exports overwrite the same file in a synced folder
+    document.body.appendChild(a); a.click(); a.remove();
+    dirty = false;
+    updateSaveIndicator();
+  });
+  document.getElementById("exportProjectBtn").addEventListener("click", () => {
+    saveActiveIntoProjects();
+    const snap = state.projects.find(p => p.id === state.activeProjectId) || snapshotActiveProject();
+    const data = { formatVersion: 2, activeProjectId: snap.id, nextProjectId: snap.id + 1, projects: [snap], exportedAt: toISO(new Date()) };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    const safeName = (state.activeProjectName || "project").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "project";
+    a.download = `${safeName}-schedule.json`; // fixed per-project name so repeat exports overwrite the same file
     document.body.appendChild(a); a.click(); a.remove();
     dirty = false;
     updateSaveIndicator();
@@ -2076,31 +2188,60 @@
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result);
-        let projects, activeId, nextProjId;
+        let importedProjects;
         if (Array.isArray(data.projects)) {
           // current multi-project format
-          projects = data.projects.map(normalizeProject);
-          if (!projects.length) throw new Error("File has no projects in it");
-          activeId = data.activeProjectId != null && projects.some(p => p.id === data.activeProjectId) ? data.activeProjectId : projects[0].id;
-          nextProjId = data.nextProjectId || (Math.max(0, ...projects.map(p => p.id)) + 1);
+          if (!data.projects.length) throw new Error("File has no projects in it");
+          importedProjects = data.projects.map(normalizeProject);
         } else if (Array.isArray(data.tasks)) {
           // legacy single-project export (from before multi-project support) — wrap it as one project
-          const legacy = normalizeProject({
+          importedProjects = [normalizeProject({
             id: 1, name: "Imported Project",
             startDate: data.startDate, threshold: data.threshold,
             tasks: data.tasks, nextId: data.nextId,
             subs: data.subs, nextSubId: data.nextSubId,
-          });
-          projects = [legacy]; activeId = 1; nextProjId = 2;
+          })];
         } else {
           throw new Error("Unrecognized file format (no tasks or projects found)");
         }
-        state.projects = projects;
-        state.nextProjectId = nextProjId;
-        activateProjectData(projects.find(p => p.id === activeId) || projects[0]);
+        // Imports are always ADDED as new projects — existing projects are never replaced or touched.
+        saveActiveIntoProjects();
+        const added = importedProjects.map(p => {
+          const id = state.nextProjectId++;
+          const name = uniqueProjectName(p.name);
+          const project = { ...p, id, name };
+          state.projects.push(project);
+          return project;
+        });
+        activateProjectData(added[0]);
         renderAll({ clean: true });
         renderSubs(); renderBudget(); renderChangeOrders(); renderProjectSwitcher();
         dirty = false; updateSaveIndicator(); // explicit: a fresh import should always read as "saved", not "unsaved"
+        alert(`Imported ${added.length === 1 ? `project "${added[0].name}"` : `${added.length} projects: ${added.map(p => p.name).join(", ")}`}. Your other projects are unchanged.`);
+      } catch (err) { alert("Could not read that file: " + err.message); }
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  });
+  document.getElementById("importSubsBtn").addEventListener("click", () => document.getElementById("importSubsFile").click());
+  document.getElementById("importSubsFile").addEventListener("change", e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        let importedSubs;
+        if (Array.isArray(data.subs)) {
+          importedSubs = data.subs; // legacy single-project format, subs at the top level
+        } else if (Array.isArray(data.projects) && data.projects.length) {
+          importedSubs = data.projects.flatMap(p => Array.isArray(p.subs) ? p.subs : []);
+        } else {
+          throw new Error("No subcontractor data found in that file");
+        }
+        const { updated, added } = mergeSubsFromFile(importedSubs);
+        renderSubs();
+        markDirty();
+        alert(`Subcontractor info updated for this project: ${updated} existing trade(s) filled in, ${added} new trade(s) added.`);
       } catch (err) { alert("Could not read that file: " + err.message); }
       e.target.value = "";
     };
@@ -2114,12 +2255,14 @@
   loadAutosaveIfPresent();
   dirty = false;
 
+  document.documentElement.setAttribute("data-viewmode", state.viewMode);
   renderAll({ clean: true });
   renderSubs();
   renderBudget();
   renderChangeOrders();
   renderProjectSwitcher();
   updateSaveIndicator();
+  scrollGanttToToday();
 })();
 </script>
 </body>
