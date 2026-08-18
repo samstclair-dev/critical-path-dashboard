@@ -373,7 +373,7 @@
       <button id="duplicateProjectBtn" title="Duplicate the current project">⧉ Duplicate</button>
       <button id="renameProjectBtn" title="Rename the current project">✎ Rename</button>
       <button id="deleteProjectBtn" title="Delete the current project" class="ghost">🗑 Delete</button>
-      <button id="projectInfoBtn" class="ghost" title="Set your contact info and a plans link — used in emails to subs">☎ Contact &amp; plans link</button>
+      <button id="projectInfoBtn" class="ghost" title="Set your contact info, a plans link, and which task counts as the official start date">☎ Contact &amp; plans link</button>
     </div>
   </div>
 
@@ -895,6 +895,7 @@
       baseline: null,
       // defaulted so every new/sample project is pre-signed — change anytime via ☎ Contact & plans link
       pmName: "Sam St. Clair", pmPhone: "706-809-3919", pmEmail: "sam@millwoodhomes.com", plansLink: "",
+      officialStartTaskId: null, // which task's computed start date counts as the "official" start (e.g. footings dug)
     };
   }
 
@@ -926,6 +927,7 @@
     pmPhone: firstProject.pmPhone,
     pmEmail: firstProject.pmEmail,
     plansLink: firstProject.plansLink,
+    officialStartTaskId: firstProject.officialStartTaskId,
   };
   const ZOOM_WIDTH = { month: 5, week: 13, day: 32 };
   const ROW_H = 32;
@@ -939,6 +941,7 @@
       changeOrders: state.changeOrders, nextCOId: state.nextCOId,
       baseline: state.baseline,
       pmName: state.pmName, pmPhone: state.pmPhone, pmEmail: state.pmEmail, plansLink: state.plansLink,
+      officialStartTaskId: state.officialStartTaskId,
     };
   }
   function saveActiveIntoProjects() {
@@ -954,6 +957,7 @@
     state.changeOrders = p.changeOrders || []; state.nextCOId = p.nextCOId || 1;
     state.baseline = p.baseline || null;
     state.pmName = p.pmName || ""; state.pmPhone = p.pmPhone || ""; state.pmEmail = p.pmEmail || ""; state.plansLink = p.plansLink || "";
+    state.officialStartTaskId = p.officialStartTaskId != null ? p.officialStartTaskId : null;
     document.getElementById("startDateInput").value = state.startDate;
     document.getElementById("thresholdInput").value = state.threshold;
   }
@@ -1010,6 +1014,8 @@
       changeOrders, nextCOId: p.nextCOId || (Math.max(0, ...changeOrders.map(c => c.id), 0) + 1),
       baseline: p.baseline || null,
       pmName: p.pmName || "", pmPhone: p.pmPhone || "", pmEmail: p.pmEmail || "", plansLink: p.plansLink || "",
+      // dropped if it points at a task that no longer exists (e.g. was deleted, or came from another project's file)
+      officialStartTaskId: (p.officialStartTaskId != null && tasks.some(t => t.id === p.officialStartTaskId)) ? p.officialStartTaskId : null,
     };
   }
 
@@ -1124,6 +1130,15 @@
       const color = diffDays > 0 ? "var(--critical)" : diffDays < 0 ? "var(--good)" : "inherit";
       baselineTile = `<div class="tile"><div class="label">Vs. baseline</div><div class="value" style="color:${color}">${diffDays>0?"+":""}${diffDays}d</div><div class="sub">${label} · set ${state.baseline.setAt}</div></div>`;
     }
+    let officialStartTile = "";
+    const officialStartTask = state.officialStartTaskId != null ? state.tasks.find(t => t.id === state.officialStartTaskId) : null;
+    if (officialStartTask) {
+      const r = c.byId.get(officialStartTask.id);
+      officialStartTile = r && r.startDate
+        ? `<div class="tile"><div class="label">Official start</div><div class="value">${fmtDate(parseISO(r.startDate))}</div><div class="sub">#${officialStartTask.id} ${escapeAttr(officialStartTask.name)}</div></div>`
+        : `<div class="tile"><div class="label">Official start</div><div class="value">—</div><div class="sub">Schedule couldn't be computed</div></div>`;
+    }
+    const tileCount = 5 + (state.baseline ? 1 : 0) + (officialStartTile ? 1 : 0);
     el.innerHTML = `
       <div class="tile"><div class="label">Estimated completion</div><div class="value">${fmtDate(c.projectFinishDate)}</div><div class="sub">${spanDays} calendar days (~${months} mo)</div></div>
       <div class="tile"><div class="label">Project start</div><div class="value">${fmtDate(c.projectStart)}</div><div class="sub">${state.tasks.length} tasks total</div></div>
@@ -1131,8 +1146,9 @@
       <div class="tile"><div class="label">Near-critical tasks</div><div class="value" style="color:#b5790f">${c.nearCount}</div><div class="sub">≤ ${state.threshold} days of float</div></div>
       <div class="tile"><div class="label">Overall progress</div><div class="value">${c.pctComplete}%</div><div class="sub">duration-weighted</div></div>
       ${baselineTile}
+      ${officialStartTile}
     `;
-    el.style.gridTemplateColumns = `repeat(${state.baseline ? 6 : 5}, 1fr)`;
+    el.style.gridTemplateColumns = `repeat(${tileCount}, 1fr)`;
   }
 
   function dayOffset(gridStart, d) { return Math.round((d - gridStart) / 86400000); }
@@ -1876,13 +1892,19 @@
   });
 
   document.getElementById("projectInfoBtn").addEventListener("click", () => {
+    const taskOptions = state.tasks.map(t => `<option value="${t.id}" ${state.officialStartTaskId===t.id?"selected":""}>#${t.id} ${escapeAttr(t.name)}</option>`).join("");
     openModal(`
-      <h3>Contact info &amp; plans link</h3>
+      <h3>Contact info, plans link &amp; official start</h3>
       <div class="modal-sub">Used to sign emails you send to subcontractors, and to include a link to the project plans. Saved with this project.</div>
       <label class="field">Your name<input type="text" id="mPmName" value="${escapeAttr(state.pmName)}" placeholder="e.g. Sam St. Claire"></label>
       <label class="field">Your phone<input type="text" id="mPmPhone" value="${escapeAttr(state.pmPhone)}" placeholder="e.g. (555) 123-4567"></label>
       <label class="field">Your email<input type="text" id="mPmEmail" value="${escapeAttr(state.pmEmail)}" placeholder="e.g. sam@millwoodlandcompany.com"></label>
       <label class="field">Plans link<input type="text" id="mPlansLink" value="${escapeAttr(state.plansLink)}" placeholder="e.g. https://drive.google.com/... or Dropbox/OneDrive folder link"></label>
+      <label class="field">Official start = <select id="mOfficialStartTask">
+        <option value="">— Not set (use Project start above) —</option>
+        ${taskOptions}
+      </select></label>
+      <div class="modal-sub">Shows a separate "Official start" stat using that task's own computed date — e.g. pick "Footing excavation" if your contract/loan defines the start as when footings go in, rather than site prep or permitting. Doesn't change any scheduling math.</div>
       <div class="modal-actions">
         <button class="ghost" id="mCancel">Cancel</button>
         <button class="primary" id="mSave">Save</button>
@@ -1894,8 +1916,10 @@
       state.pmPhone = document.getElementById("mPmPhone").value.trim();
       state.pmEmail = document.getElementById("mPmEmail").value.trim();
       state.plansLink = normalizeUrl(document.getElementById("mPlansLink").value);
-      markDirty();
+      const pickedId = document.getElementById("mOfficialStartTask").value;
+      state.officialStartTaskId = pickedId ? Number(pickedId) : null;
       closeModal();
+      renderAll();
     });
   });
 
@@ -1971,6 +1995,7 @@
     if (!confirm("Delete this task? Any tasks depending on it will need new predecessors.")) return;
     state.tasks = state.tasks.filter(t => t.id !== id);
     state.tasks.forEach(t => t.predecessors = (t.predecessors||[]).filter(p => p.id !== id));
+    if (state.officialStartTaskId === id) state.officialStartTaskId = null;
     renderAll();
   });
 
