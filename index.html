@@ -831,46 +831,47 @@
       T(59,"Insulation installation (batt / blown / spray foam)","Insulation Contractor",2,[{id:57},{id:58}],false,"critical"),
       T(60,"Air sealing","Insulation Contractor",1,[{id:59}],false,"near"),
       T(61,"Insulation inspection","Building Inspector",0,[{id:60}],true,"critical"),
-      // ===== Phase 8: Drywall =====
-      T(62,"Drywall hang","Drywall Contractor",4,[{id:61}],false,"critical"),
-      T(63,"Drywall tape & mud (multiple coats)","Drywall Contractor",4,[{id:62}],false,"critical"),
-      T(64,"Drywall texture","Drywall Contractor",2,[{id:63}],false,"critical"),
-      T(65,"Sand & prime/seal coat","Drywall Contractor",1,[{id:64}],false,"critical"),
+      // ===== Phase 8: Drywall — exactly three drywall-contractor events: delivery, hang, finish =====
+      T(103,"Drywall delivery","Drywall Contractor",1,[{id:61}],false,"critical"),
+      T(62,"Drywall hang","Drywall Contractor",4,[{id:103}],false,"critical"),
+      T(63,"Drywall finish","Drywall Contractor",4,[{id:62}],false,"critical"),
+      T(65,"Interior priming","Painting Contractor",1,[{id:63}],false,"critical"),
       // ===== Phase 9: Exterior Finishes =====
       T(66,"Siding installation","Siding Contractor",4,[{id:58}],false,"near"),
       T(67,"Exterior trim (fascia, corner boards)","Siding Contractor",2,[{id:66}],false,"near"),
       T(68,"Soffit & fascia","Siding Contractor",1,[{id:66}],false,"near"),
       T(69,"Exterior masonry / stone veneer","Masonry Contractor",3,[{id:66}],false,"normal"),
-      T(70,"Exterior painting / staining","Painting Contractor",2,[{id:67},{id:68},{id:69}],false,"normal"),
-      T(71,"Garage door installation","Garage Door Installer",1,[{id:66}],false,"normal"),
-      T(72,"Driveway / walkway concrete","Concrete Contractor",2,[{id:70}],false,"normal"),
+      T(70,"Exterior painting / staining","Painting Contractor",2,[{id:67},{id:68},{id:69},{id:87}],false,"normal"),
+      T(71,"Garage door installation","Garage Door Installer",1,[{id:66},{id:79}],false,"normal"),
+      T(72,"Driveway / walkway concrete","Concrete Contractor",2,[{id:78}],false,"normal"),
       // ===== Phase 10: Interior Finishes =====
-      T(81,"Tile work (baths, backsplash)","Tile Contractor",4,[{id:65}],false,"critical"),
-      T(79,"Interior painting (walls, ceilings, trim)","Painting Contractor",4,[{id:81}],false,"critical"),
-      T(73,"Interior trim (door/window casing, baseboard)","Trim Carpenter",4,[{id:79}],false,"critical"),
-      T(74,"Interior door hanging","Trim Carpenter",2,[{id:73}],false,"critical"),
-      T(75,"Stair rails / balusters","Trim Carpenter",1,[{id:73}],false,"near"),
-      T(76,"Cabinet installation","Cabinet Installer",3,[{id:73}],false,"critical"),
+      T(76,"Cabinet installation","Cabinet Installer",3,[{id:65}],false,"critical"),
       T(77,"Countertop templating","Countertop Fabricator",1,[{id:76}],false,"critical"),
-      T(78,"Countertop fabrication & installation","Countertop Fabricator",1,[{id:77,lag:5}],false,"critical"),
-      T(80,"Flooring installation (hardwood/tile/LVP/carpet)","Flooring Contractor",4,[{id:73}],false,"critical"),
+      T(73,"Interior trim (door/window casing, baseboard)","Trim Carpenter",4,[{id:76}],false,"critical"),
+      T(75,"Stair rails / balusters","Trim Carpenter",1,[{id:73}],false,"near"),
+      T(79,"Interior painting (walls, ceilings, trim)","Painting Contractor",4,[{id:73}],false,"critical"),
+      T(81,"Tile work (baths, backsplash)","Tile Contractor",4,[{id:79}],false,"critical"),
+      T(80,"Flooring installation (hardwood/tile/LVP/carpet)","Flooring Contractor",4,[{id:79}],false,"critical"),
       // ===== Phase 11: MEP Trim-Out & Fixtures =====
+      T(83,"Electrical trim-out (devices, switches, fixtures)","Electrician",2,[{id:81}],false,"critical"),
+      T(84,"HVAC trim-out (registers, grilles, thermostat, startup)","HVAC Contractor",1,[{id:83}],false,"critical"),
+      T(78,"Countertop fabrication & installation","Countertop Fabricator",1,[{id:77,lag:5},{id:84}],false,"critical"),
       T(82,"Plumbing fixture trim-out (sinks, toilets, faucets, tub/shower)","Plumber",2,[{id:78},{id:80}],false,"critical"),
-      T(83,"Electrical trim-out (devices, switches, fixtures)","Electrician",2,[{id:80}],false,"critical"),
-      T(84,"HVAC trim-out (registers, grilles, thermostat, startup)","HVAC Contractor",1,[{id:80}],false,"critical"),
       T(85,"Low-voltage device / equipment installation","Low-Voltage Contractor",1,[{id:80},{id:55}],false,"normal"),
-      T(86,"Appliance installation","Appliance Installer",1,[{id:82}],false,"near"),
+      T(86,"Appliance installation","Appliance Installer",1,[{id:83},{id:80},{id:82}],false,"near"),
       // ===== Phase 12: Final Site Work & Landscaping =====
       T(87,"Final grading","Landscaper",1,[{id:72}],false,"near"),
-      T(88,"Landscaping / sod / planting","Landscaper",3,[{id:87}],false,"normal"),
-      T(89,"Final hardscape (patios, walkways not done earlier)","Landscaper",2,[{id:87}],false,"normal"),
-      T(90,"Gutters (final, if deferred)","Gutter Contractor",1,[{id:70}],false,"normal"),
-      T(91,"Exterior lighting finalization","Electrician",1,[{id:83}],false,"normal"),
+      T(88,"Landscaping / sod / planting","Landscaper",3,[{id:87},{id:70}],false,"normal"),
+      T(90,"Gutters (final, if deferred)","Gutter Contractor",1,[{id:70},{id:88}],false,"normal"),
       // ===== Phase 13: Closeout & Occupancy =====
-      T(92,"Final construction cleaning","Cleaning Crew",2,[{id:82},{id:83},{id:84},{id:85},{id:86},{id:88},{id:89},{id:90},{id:91}],false,"near"),
+      T(92,"Final construction cleaning","Cleaning Crew",2,[{id:82},{id:83},{id:84},{id:85},{id:86},{id:88},{id:90},{id:71}],false,"near"),
       T(93,"Punch list walkthrough","General Contractor",0,[{id:92}],true,"critical"),
-      T(94,"Punch list corrections","General Contractor",2,[{id:93}],false,"critical"),
-      T(95,"Final inspections (building, electrical, plumbing, mechanical)","Building Inspector",0,[{id:94}],true,"critical"),
+      T(99,"Trim punch-out","Trim Carpenter",1,[{id:93}],false,"critical"),
+      T(100,"Drywall touch-up","Drywall Contractor",1,[{id:99}],false,"critical"),
+      T(101,"Paint touch-up","Painting Contractor",1,[{id:100}],false,"critical"),
+      T(94,"Punch list corrections","General Contractor",2,[{id:101}],false,"critical"),
+      T(102,"Final cleaning","Cleaning Crew",1,[{id:94}],false,"critical"),
+      T(95,"Final inspections (building, electrical, plumbing, mechanical)","Building Inspector",0,[{id:102}],true,"critical"),
       T(96,"Certificate of Occupancy issued","City / County",0,[{id:95}],true,"critical"),
       T(97,"Final owner/buyer walkthrough","General Contractor",0,[{id:96}],true,"critical"),
       T(98,"Closing / move-in","Title Company",0,[{id:97}],true,"critical"),
@@ -942,7 +943,7 @@
     return {
       id, name: name || "Untitled Project",
       startDate: toISO(new Date()), threshold: 3,
-      tasks, nextId: useSample ? 99 : 1,
+      tasks, nextId: useSample ? 104 : 1,
       subs, nextSubId: subs.length + 1,
       changeOrders: [], nextCOId: 1,
       baseline: null,
@@ -2330,7 +2331,7 @@
 
   document.getElementById("sampleBtn").addEventListener("click", () => {
     if (state.tasks.length && !confirm("Replace the current task list with the standard sample schedule? This also clears this project's baseline and change orders, since they'd no longer line up.")) return;
-    state.tasks = sampleTasks(); state.nextId = 99; state.baseline = null; state.changeOrders = []; state.nextCOId = 1;
+    state.tasks = sampleTasks(); state.nextId = 104; state.baseline = null; state.changeOrders = []; state.nextCOId = 1;
     renderAll(); renderBudget(); renderChangeOrders();
   });
   document.getElementById("clearBtn").addEventListener("click", () => {
