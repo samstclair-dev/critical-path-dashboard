@@ -279,8 +279,15 @@
     cursor: grab; touch-action: none;
   }
   .bar:active, .bar.dragging { cursor: grabbing; box-shadow: 0 0 0 2px var(--text-primary); z-index: 3; }
+  .bar.resizing { box-shadow: 0 0 0 2px var(--violet); z-index: 3; }
   .bar .fill-bg { position:absolute; inset:0; border-radius:4px; opacity: 0.55; }
   .bar .fill-done { position:absolute; top:0; bottom:0; left:0; border-radius:4px; opacity: 1; }
+  .bar-resize-handle { position: absolute; top: 0; right: -1px; bottom: 0; width: 7px; cursor: ew-resize; touch-action: none; z-index: 4; }
+  .bar-resize-handle::after {
+    content: ""; position: absolute; top: 2px; bottom: 2px; right: 2px; width: 3px;
+    border-radius: 2px; background: rgba(255,255,255,0.65);
+  }
+  .bar-resize-handle:hover::after, .bar.resizing .bar-resize-handle::after { background: #fff; }
   .bar .bar-label {
     position: absolute; left: 4px; top: 0; height: 16px; display:flex; align-items:center;
     font-size: 10px; color:#fff; white-space:nowrap; z-index:2; text-shadow: 0 1px 1px rgba(0,0,0,0.35);
@@ -501,7 +508,8 @@
   <footer class="note">
     Durations are in working days (federal holidays + weekends auto-skipped, shown shaded above). Drag a bar/milestone left or right on the
     chart to reschedule it — its dependents recalculate live as you drag (press <b>Esc</b> to cancel a drag). A task with predecessors can't be
-    dragged earlier than they allow; it will stop at the earliest feasible date. Your work <b>autosaves to this browser</b> automatically
+    dragged earlier than they allow; it will stop at the earliest feasible date. In <b>Edit view</b>, drag the small handle on a bar's
+    right edge to change its duration instead of its start date — dependents recalculate live the same way. Your work <b>autosaves to this browser</b> automatically
     (the indicator up top shows autosave status) — closing the tab or reloading won't lose anything.
     <br>Autosave only lives in this browser on this device, though. Use <b>Export this project</b> for a portable backup of just what
     you're viewing, or <b>Export all projects</b> to back up your whole project list at once — either way you can carry the file to your
@@ -802,62 +810,62 @@
       T(34,"Termite pre-treatment","Pest Control",1,[{id:33}],false,"near"),
       T(35,"Slab prep (vapor barrier, gravel, mesh/rebar)","Concrete Contractor",2,[{id:34}],false,"critical"),
       T(36,"Under-slab plumbing rough-in","Plumber",1,[{id:35}],false,"critical"),
-      T(37,"Pour slab","Concrete Contractor",2,[{id:36}],false,"critical"),
+      T(37,"Pour slab","Concrete Contractor",3,[{id:36}],false,"critical"),
       // ===== Phase 4: Framing & Dry-In — condensed to three framing-crew events =====
       T(104,"Framing material delivery","Framing Crew",1,[{id:37}],false,"critical"),
-      T(41,"Wall framing","Framing Crew",11,[{id:104}],false,"critical"),
-      T(44,"Roof decking","Framing Crew",5,[{id:41},{id:14}],false,"critical"),
+      T(41,"Wall framing","Framing Crew",4,[{id:104}],false,"critical"),
+      T(44,"Roof decking","Framing Crew",3,[{id:41},{id:14}],false,"critical"),
       T(45,"Framing inspection","Building Inspector",0,[{id:44}],true,"critical"),
       T(46,"House wrap / weather-resistive barrier","Framing Crew",1,[{id:45}],false,"critical"),
-      T(47,"Windows & exterior doors set (dry-in)","Framing Crew",2,[{id:46},{id:14}],false,"critical"),
+      T(47,"Windows & exterior doors set (dry-in)","Framing Crew",1,[{id:46},{id:14}],false,"critical"),
       // ===== Phase 5: Roofing =====
       T(48,"Roof underlayment","Roofing Contractor",1,[{id:44}],false,"critical"),
-      T(49,"Roofing material installation (shingle / metal / tile)","Roofing Contractor",3,[{id:48}],false,"critical"),
+      T(49,"Roofing material installation (shingle / metal / tile)","Roofing Contractor",1,[{id:48}],false,"critical"),
       T(50,"Roof flashing, vents, penetrations","Roofing Contractor",1,[{id:49}],false,"critical"),
       T(51,"Gutters (rough or final)","Gutter Contractor",1,[{id:50}],false,"normal"),
       // ===== Phase 6: MEP Rough-In =====
-      T(52,"Plumbing rough-in (supply/DWV, tub & shower set)","Plumber",3,[{id:47}],false,"critical"),
-      T(53,"Electrical rough-in (wiring, panel set)","Electrician",3,[{id:47}],false,"critical"),
-      T(54,"HVAC rough-in (ductwork, line sets, equipment set)","HVAC Contractor",3,[{id:47}],false,"critical"),
+      T(52,"Plumbing rough-in (supply/DWV, tub & shower set)","Plumber",1,[{id:47}],false,"critical"),
+      T(53,"Electrical rough-in (wiring, panel set)","Electrician",1,[{id:47}],false,"critical"),
+      T(54,"HVAC rough-in (ductwork, line sets, equipment set)","HVAC Contractor",1,[{id:47}],false,"critical"),
       T(55,"Low-voltage rough-in (data, security, A/V)","Low-Voltage Contractor",1,[{id:47}],false,"normal"),
       T(56,"Fireplace / chimney rough-in","Fireplace Installer",1,[{id:47}],false,"normal"),
       T(57,"Rough-in inspections (plumbing, electrical, mechanical)","Building Inspector",0,[{id:52},{id:53},{id:54}],true,"critical"),
       // ===== Phase 7: Insulation & Air Sealing =====
       T(58,"Exterior flashing / sealant details completed","Siding Contractor",2,[{id:47},{id:50}],false,"near"),
-      T(59,"Insulation installation & air sealing (batt / blown / spray foam)","Insulation Contractor",3,[{id:57},{id:58}],false,"critical"),
+      T(59,"Insulation installation & air sealing (batt / blown / spray foam)","Insulation Contractor",1,[{id:57},{id:58}],false,"critical"),
       T(61,"Insulation inspection","Building Inspector",0,[{id:59}],true,"critical"),
       // ===== Phase 8: Drywall — exactly three drywall-contractor events: delivery, hang, finish =====
       T(103,"Drywall delivery","Drywall Contractor",1,[{id:61}],false,"critical"),
-      T(62,"Drywall hang","Drywall Contractor",4,[{id:103}],false,"critical"),
-      T(63,"Drywall finish","Drywall Contractor",4,[{id:62}],false,"critical"),
+      T(62,"Drywall hang","Drywall Contractor",1,[{id:103}],false,"critical"),
+      T(63,"Drywall finish","Drywall Contractor",5,[{id:62}],false,"critical"),
       T(65,"Interior priming","Painting Contractor",1,[{id:63}],false,"critical"),
       // ===== Phase 9: Exterior Finishes =====
-      T(66,"Siding installation","Siding Contractor",7,[{id:58}],false,"near"),
+      T(66,"Siding installation","Siding Contractor",5,[{id:58}],false,"near"),
       T(69,"Exterior masonry / stone veneer","Masonry Contractor",3,[{id:66}],false,"normal"),
       T(70,"Exterior painting / staining","Painting Contractor",2,[{id:66},{id:69},{id:87}],false,"normal"),
       T(71,"Garage door installation","Garage Door Installer",1,[{id:66},{id:79}],false,"normal"),
       T(72,"Driveway / walkway concrete","Concrete Contractor",2,[{id:78}],false,"normal"),
       // ===== Phase 10: Interior Finishes =====
-      T(76,"Cabinet installation","Cabinet Installer",3,[{id:65}],false,"critical"),
+      T(76,"Cabinet installation","Cabinet Installer",1,[{id:65}],false,"critical"),
       T(77,"Countertop templating","Countertop Fabricator",1,[{id:76}],false,"critical"),
       T(73,"Interior trim (door/window casing, baseboard)","Trim Carpenter",4,[{id:76}],false,"critical"),
       T(75,"Stair rails / balusters","Trim Carpenter",1,[{id:73}],false,"near"),
       T(79,"Interior painting (walls, ceilings, trim)","Painting Contractor",4,[{id:73}],false,"critical"),
       T(81,"Tile work (baths, backsplash)","Tile Contractor",4,[{id:79}],false,"critical"),
-      T(80,"Flooring installation (hardwood/tile/LVP/carpet)","Flooring Contractor",4,[{id:79}],false,"critical"),
+      T(80,"Flooring installation (hardwood/tile/LVP/carpet)","Flooring Contractor",1,[{id:79}],false,"critical"),
       // ===== Phase 11: MEP Trim-Out & Fixtures =====
       T(83,"Electrical trim-out (devices, switches, fixtures)","Electrician",2,[{id:81}],false,"critical"),
       T(84,"HVAC trim-out (registers, grilles, thermostat, startup)","HVAC Contractor",1,[{id:83}],false,"critical"),
       T(78,"Countertop fabrication & installation","Countertop Fabricator",1,[{id:77,lag:5},{id:84}],false,"critical"),
-      T(82,"Plumbing fixture trim-out (sinks, toilets, faucets, tub/shower)","Plumber",2,[{id:78},{id:80}],false,"critical"),
+      T(82,"Plumbing fixture trim-out (sinks, toilets, faucets, tub/shower)","Plumber",1,[{id:78},{id:80}],false,"critical"),
       T(85,"Low-voltage device / equipment installation","Low-Voltage Contractor",1,[{id:80},{id:55}],false,"normal"),
       T(86,"Appliance installation","Appliance Installer",1,[{id:83},{id:80},{id:82}],false,"near"),
       // ===== Phase 12: Final Site Work & Landscaping =====
       T(87,"Final grading","Landscaper",1,[{id:72}],false,"near"),
-      T(88,"Landscaping / sod / planting","Landscaper",3,[{id:87},{id:70}],false,"normal"),
+      T(88,"Landscaping / sod / planting","Landscaper",2,[{id:87},{id:70}],false,"normal"),
       T(90,"Gutters (final, if deferred)","Gutter Contractor",1,[{id:70},{id:88}],false,"normal"),
       // ===== Phase 13: Closeout & Occupancy =====
-      T(92,"Final construction cleaning","Cleaning Crew",2,[{id:82},{id:83},{id:84},{id:85},{id:86},{id:88},{id:90},{id:71}],false,"near"),
+      T(92,"Final construction cleaning","Cleaning Crew",1,[{id:82},{id:83},{id:84},{id:85},{id:86},{id:88},{id:90},{id:71}],false,"near"),
       T(93,"Punch list walkthrough","General Contractor",0,[{id:92}],true,"critical"),
       T(99,"Trim punch-out","Trim Carpenter",1,[{id:93}],false,"critical"),
       T(100,"Drywall touch-up","Drywall Contractor",1,[{id:99}],false,"critical"),
@@ -1087,6 +1095,7 @@
   /* ============ compute + render ============ */
   let lastCompute = null;
   let dragState = null;
+  let resizeState = null;
   let lastGridInfo = null;
   let dirty = false;
 
@@ -1393,15 +1402,20 @@
           tl.innerHTML = `<div class="milestone${draggingCls}${forcedCls} ${isDone?'done':''}" data-id="${t.id}" title="${escapeAttr(t.name)}${escapeAttr(companyLine)}\n${r.startDate} · float ${r.float}d${escapeAttr(isForced ? statusLine : "")}${isDone ? "\nDone" : ""}\nDrag to reschedule" style="left:${x}px;background:${isDone ? 'var(--good)' : color}"></div>`
             + (isClean ? `<div class="bar-tag" style="left:${x+dayWidth/2+6}px">${escapeAttr(t.name)}</div>` : "");
         } else {
+          const resizingCls = (resizeState && resizeState.taskId === t.id) ? " resizing" : "";
           let barsHtml = "";
-          for (const seg of segments) {
+          segments.forEach((seg, segIdx) => {
             const x = dayOffset(gridStart, seg.start) * dayWidth;
             const w = (dayOffset(gridStart, seg.end) - dayOffset(gridStart, seg.start) + 1) * dayWidth - 2;
-            barsHtml += `<div class="bar${draggingCls}${forcedCls}" data-id="${t.id}" style="left:${x}px;width:${Math.max(w,4)}px" title="${escapeAttr(t.name)}${escapeAttr(companyLine)}\n${r.startDate} → ${r.endDate}\nFloat: ${r.float} work day(s)${isForced ? escapeAttr(statusLine) : statusLine}${isDone ? " — DONE" : ""}\nDrag to reschedule">
+            // Only the final segment gets a resize handle — that's the one showing the task's actual end date.
+            const resizeHandle = (!isClean && segIdx === segments.length - 1)
+              ? `<div class="bar-resize-handle" data-action="resize" data-id="${t.id}" title="Drag to change duration"></div>` : "";
+            barsHtml += `<div class="bar${draggingCls}${resizingCls}${forcedCls}" data-id="${t.id}" style="left:${x}px;width:${Math.max(w,4)}px" title="${escapeAttr(t.name)}${escapeAttr(companyLine)}\n${r.startDate} → ${r.endDate}\nFloat: ${r.float} work day(s)${isForced ? escapeAttr(statusLine) : statusLine}${isDone ? " — DONE" : ""}\nDrag to reschedule">
               <div class="fill-bg" style="background:${color}"></div>
               <div class="fill-done" style="background:var(--good);width:${pct}%"></div>
+              ${resizeHandle}
             </div>`;
-          }
+          });
           tl.innerHTML = barsHtml + (isDone ? `<div class="bar-label" style="left:${(segments[0]?dayOffset(gridStart,segments[0].start)*dayWidth:0)+4}px">✓</div>` : "") + tagHtml;
         }
       }
@@ -2193,13 +2207,14 @@
 
   /* ============ drag-to-reschedule on the Gantt chart ============ */
   let dragTipEl = null;
-  function showDragTip(clientX, clientY) {
+  function showDragTip(clientX, clientY, taskId) {
     if (!dragTipEl) {
       dragTipEl = document.createElement("div");
       dragTipEl.className = "drag-tip";
       document.body.appendChild(dragTipEl);
     }
-    const r = lastCompute ? lastCompute.byId.get(dragState.taskId) : null;
+    const id = taskId != null ? taskId : (dragState && dragState.taskId);
+    const r = (lastCompute && id != null) ? lastCompute.byId.get(id) : null;
     if (r) {
       dragTipEl.textContent = `${r.startDate} → ${r.endDate}` + (r.float === 0 ? "  ·  CRITICAL PATH" : `  ·  ${r.float}d float`);
     }
@@ -2282,8 +2297,69 @@
     showDragTip(e.clientX, e.clientY);
   }
 
+  /* ============ drag-to-resize (Edit view only): change a task's duration by dragging its bar's
+     right edge ============ */
+  function computeResizeDelta(clientX) {
+    const { gridStart, dayWidth, workingDays } = lastGridInfo;
+    const deltaPx = clientX - resizeState.startClientX;
+    const originalDate = workingDays[resizeState.originalEFIndex].date;
+    const originalLeftPx = dayOffset(gridStart, originalDate) * dayWidth;
+    const dayIdx = Math.round((originalLeftPx + deltaPx) / dayWidth);
+    const targetDate = addCalDays(gridStart, dayIdx);
+    const newEFIndex = nearestWorkingDayIndex(workingDays, targetDate);
+    return newEFIndex - resizeState.originalEFIndex;
+  }
+
+  function onResizeMove(e) {
+    if (!resizeState) return;
+    const delta = computeResizeDelta(e.clientX);
+    const task = state.tasks.find(t => t.id === resizeState.taskId);
+    if (!task) return;
+    task.duration = Math.max(1, resizeState.originalDuration + delta);
+    renderAll();
+    showDragTip(e.clientX, e.clientY, resizeState.taskId);
+  }
+
+  function endResize() {
+    if (!resizeState) return;
+    document.body.classList.remove("is-dragging");
+    document.removeEventListener("pointermove", onResizeMove);
+    document.removeEventListener("pointerup", endResize);
+    document.removeEventListener("keydown", onResizeKeydown);
+    hideDragTip();
+    resizeState = null;
+    renderGantt(lastCompute);
+  }
+
+  function onResizeKeydown(e) {
+    if (e.key === "Escape" && resizeState) {
+      const task = state.tasks.find(t => t.id === resizeState.taskId);
+      if (task) task.duration = resizeState.originalDuration;
+      endResize();
+      renderAll();
+    }
+  }
+
+  function startResize(e, taskId) {
+    if (!lastCompute || !lastGridInfo) return;
+    const r = lastCompute.byId.get(taskId);
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!r || !task || task.milestone) return;
+    e.preventDefault();
+    e.stopPropagation();
+    resizeState = { taskId, startClientX: e.clientX, originalEFIndex: r.ef, originalDuration: task.duration || 0 };
+    document.body.classList.add("is-dragging");
+    document.addEventListener("pointermove", onResizeMove);
+    document.addEventListener("pointerup", endResize);
+    document.addEventListener("keydown", onResizeKeydown);
+    renderGantt(lastCompute);
+    showDragTip(e.clientX, e.clientY, taskId);
+  }
+
   document.getElementById("ganttBody").addEventListener("pointerdown", e => {
     if (e.button !== undefined && e.button !== 0) return;
+    const handle = e.target.closest(".bar-resize-handle");
+    if (handle) { startResize(e, Number(handle.dataset.id)); return; }
     const el = e.target.closest(".bar, .milestone");
     if (!el) return;
     startDrag(e, Number(el.dataset.id));
