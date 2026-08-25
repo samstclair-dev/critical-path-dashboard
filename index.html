@@ -120,6 +120,8 @@
     border-bottom: 1px solid var(--border); font-weight:600;
   }
   .subs-row input { width: 100%; font-size: 12px; padding: 4px 6px; }
+  .sc-view { width: 76px; flex:none; }
+  .sc-view button { padding: 3px 7px; font-size: 11px; }
   .sc-trade { width: 170px; flex:none; }
   .sc-company { width: 190px; flex:none; }
   .sc-contact { width: 150px; flex:none; }
@@ -138,6 +140,11 @@
   .sc-del button { padding: 2px 5px; }
   .col-company { width: 110px; flex: none; font-size: 11px; color: var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .col-company.empty { color: var(--muted); font-style: italic; }
+  .col-company.quickadd {
+    all: unset; width: 110px; flex: none; font-size: 11px; overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap; color: var(--series-1); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 2px;
+  }
+  .col-company.quickadd:hover { color: var(--violet); }
 
   /* ---------- budget tab ---------- */
   .bg-id { width: 40px; flex:none; }
@@ -333,7 +340,45 @@
   .stepper-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
   .stepper-card .st-trade { font-weight:700; font-size: 14px; }
   .stepper-card .st-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* ---------- subcontractor detail modal ---------- */
+  .detail-contact a { color: var(--series-1); }
+  .detail-task-list { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 4px; }
+  .detail-task-row {
+    display: flex; align-items: center; gap: 8px; padding: 7px 10px; font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-task-row:last-child { border-bottom: none; }
+  .detail-task-row:nth-child(even) { background: color-mix(in srgb, var(--surface-1) 92%, var(--muted) 8%); }
+  .detail-task-row .dt-name { flex: 1 1 auto; font-weight: 600; }
+  .detail-task-row .dt-when { flex: none; width: 148px; color: var(--text-secondary); font-size: 11.5px; }
+  .detail-task-row .dt-status { flex: none; width: 78px; font-size: 11.5px; color: var(--text-secondary); }
+  .detail-task-row .dt-flag { flex: none; width: 66px; font-size: 11px; font-weight: 600; text-align: right; }
+  .detail-cost-row { display: flex; gap: 14px; font-size: 12.5px; padding: 6px 2px; }
   .sent-check { color: var(--good); font-size: 11px; margin-left: 4px; }
+
+  /* ---------- small screens ---------- */
+  /* Scrollable data regions already handle their own horizontal/vertical scroll (including touch);
+     this pass is about the page shell not overflowing and the stat tiles staying readable. */
+  .subs-scroll, .gantt-scroll { -webkit-overflow-scrolling: touch; }
+  @media (max-width: 700px) {
+    .wrap { padding: 12px 10px 28px; }
+    .brand h1 { font-size: 15px; }
+    .stats { grid-template-columns: repeat(2, 1fr) !important; }
+    .toolbar .group, .top-controls, #projectSwitcherRow .group { gap: 6px; }
+    .legend { gap: 6px 10px; }
+  }
+
+  /* ---------- print / save as PDF ---------- */
+  @media print {
+    header.top .top-controls, #projectSwitcherRow, .tabbar, .toolbar, .add-row, footer.note,
+    .modal-overlay, .edit-only, .no-print { display: none !important; }
+    body { background: #fff; }
+    .wrap { max-width: none; padding: 0; }
+    .panel { border: none; box-shadow: none; }
+    .gantt-scroll, .gantt-body, .gantt-header-row, .subs-scroll { overflow: visible !important; max-height: none !important; }
+    @page { size: landscape; margin: 10mm; }
+  }
 </style>
 </head>
 <body>
@@ -405,6 +450,13 @@
         <input type="checkbox" id="depToggle" checked style="width:auto;" />
         <span>Show dependency lines</span>
       </label>
+      <label class="field" style="flex-direction:row; align-items:center; gap:6px;">
+        <span>Filter</span>
+        <select id="tradeFilterSelect" style="min-width:150px" title="Show only one trade's tasks — pair with Clean view and Print for a scoped handout to that sub">
+          <option value="">All trades</option>
+        </select>
+      </label>
+      <button id="printBtn" class="ghost" title="Print or save as PDF — combine with the trade filter to hand one sub just their scope">🖨 Print</button>
     </div>
     <div class="group edit-only">
       <button id="setBaselineBtn" class="ghost" title="Snapshot the current planned dates so you can see drift later">📌 Set baseline</button>
@@ -424,7 +476,7 @@
     <div class="item"><span class="swatch tint" style="background:var(--holiday-tint)"></span>Holiday</div>
     <div class="item">📌 = manually pinned status (see the <b>Flag</b> column)</div>
     <div class="item"><span class="swatch" style="background:transparent;border:1.5px dashed var(--muted)"></span>Baseline (originally planned dates)</div>
-    <div class="item" style="font-weight:600">🖱 Drag any bar or milestone to reschedule it — dependent tasks shift with it</div>
+    <div class="item no-print" style="font-weight:600">🖱 Drag any bar or milestone to reschedule it — dependent tasks shift with it</div>
   </div>
 
   <div class="panel">
@@ -475,6 +527,7 @@
     <div class="panel">
       <div class="subs-scroll" id="subsScroll">
         <div class="subs-row subs-header">
+          <span class="sc-view"></span>
           <span class="sc-trade">Trade</span>
           <span class="sc-company">Company name</span>
           <span class="sc-contact">Contact</span>
@@ -711,112 +764,112 @@
     // to "Auto" on the Flag column to see its computed status instead.
     return [
       // ===== Phase 1: Pre-Construction & Planning =====
-      T(1,"Site selection / land purchase","Owner / Buyer",5,[],false,"normal"),
+      T(1,"Site selection / land purchase","Owner / Buyer",3,[],false,"normal"),
       T(2,"Soil / percolation test","Soil Testing Contractor",2,[{id:1}],false,"critical"),
-      T(3,"Boundary & topographic survey","Surveyor",3,[{id:1}],false,"critical"),
-      T(4,"Architectural design / construction drawings","Architect",20,[{id:2},{id:3}],false,"critical"),
-      T(5,"Structural engineering (if required)","Structural Engineer",5,[{id:4}],false,"critical"),
-      T(6,"Energy code compliance docs (Manual J/D/S, HERS)","Energy Consultant",3,[{id:4}],false,"near"),
-      T(7,"Building permit application & approval","Permitting / Architect",20,[{id:5},{id:6},{id:8}],false,"critical"),
-      T(8,"Zoning approval / variance (if required)","General Contractor",10,[{id:4}],false,"critical"),
-      T(9,"Septic system design & permit (if not on sewer)","Septic Contractor",10,[{id:2}],false,"critical"),
-      T(10,"Well permit / water source approval (if not on public water)","Well Drilling Contractor",10,[{id:2}],false,"critical"),
-      T(11,"Construction loan / financing closing","Lender",5,[{id:7}],false,"critical"),
+      T(3,"Boundary & topographic survey","Surveyor",2,[{id:1}],false,"critical"),
+      T(4,"Architectural design / construction drawings","Architect",15,[{id:2},{id:3}],false,"critical"),
+      T(5,"Structural engineering (if required)","Structural Engineer",4,[{id:4}],false,"critical"),
+      T(6,"Energy code compliance docs (Manual J/D/S, HERS)","Energy Consultant",2,[{id:4}],false,"near"),
+      T(7,"Building permit application & approval","Permitting / Architect",15,[{id:5},{id:6},{id:8}],false,"critical"),
+      T(8,"Zoning approval / variance (if required)","General Contractor",7,[{id:4}],false,"critical"),
+      T(9,"Septic system design & permit (if not on sewer)","Septic Contractor",6,[{id:2}],false,"critical"),
+      T(10,"Well permit / water source approval (if not on public water)","Well Drilling Contractor",6,[{id:2}],false,"critical"),
+      T(11,"Construction loan / financing closing","Lender",4,[{id:7}],false,"critical"),
       T(12,"Builder's risk & liability insurance bound","Insurance Agent",2,[{id:11}],false,"near"),
-      T(13,"Subcontractor bidding & selection","General Contractor",10,[{id:4}],false,"normal"),
+      T(13,"Subcontractor bidding & selection","General Contractor",7,[{id:4}],false,"normal"),
       T(14,"Order long-lead items (trusses, windows, custom cabinets, garage doors)","General Contractor",5,[{id:13}],false,"critical"),
       // ===== Phase 2: Site Work & Utilities =====
       T(15,"Site mobilization (temp power, toilet, dumpster, signage)","General Contractor",2,[{id:7},{id:11},{id:12}],false,"near"),
       T(16,"Erosion control / silt fencing","Excavation Contractor",1,[{id:15}],false,"critical"),
-      T(17,"Tree / land clearing","Excavation Contractor",3,[{id:16}],false,"critical"),
-      T(18,"Rough grading","Excavation Contractor",3,[{id:17}],false,"critical"),
-      T(19,"Temporary construction access / driveway","Excavation Contractor",2,[{id:18}],false,"normal"),
-      T(20,"Excavation for foundation","Excavation Contractor",3,[{id:18}],false,"critical"),
-      T(21,"Utility trenching (water, sewer, electric service)","Utility Contractor",3,[{id:18}],false,"near"),
-      T(22,"Septic system installation (if applicable)","Septic Contractor",3,[{id:9},{id:20}],false,"critical"),
-      T(23,"Well drilling (if applicable)","Well Drilling Contractor",3,[{id:10},{id:18}],false,"near"),
+      T(17,"Tree / land clearing","Excavation Contractor",2,[{id:16}],false,"critical"),
+      T(18,"Rough grading","Excavation Contractor",2,[{id:17}],false,"critical"),
+      T(19,"Temporary construction access / driveway","Excavation Contractor",1,[{id:18}],false,"normal"),
+      T(20,"Excavation for foundation","Excavation Contractor",2,[{id:18}],false,"critical"),
+      T(21,"Utility trenching (water, sewer, electric service)","Utility Contractor",2,[{id:18}],false,"near"),
+      T(22,"Septic system installation (if applicable)","Septic Contractor",2,[{id:9},{id:20}],false,"critical"),
+      T(23,"Well drilling (if applicable)","Well Drilling Contractor",2,[{id:10},{id:18}],false,"near"),
       // ===== Phase 3: Foundation =====
       T(24,"Foundation layout / stakeout","Surveyor",1,[{id:20}],false,"critical"),
       T(25,"Footing excavation","Excavation Contractor",2,[{id:24}],false,"critical"),
       T(26,"Footing forms & rebar","Concrete Contractor",2,[{id:25}],false,"critical"),
       T(27,"Footing inspection","Building Inspector",0,[{id:26}],true,"critical"),
       T(28,"Pour footings","Concrete Contractor",1,[{id:27}],false,"critical"),
-      T(29,"Foundation walls / stem walls (form & pour, or block)","Concrete Contractor",5,[{id:28}],false,"critical"),
+      T(29,"Foundation walls / stem walls (form & pour, or block)","Concrete Contractor",4,[{id:28}],false,"critical"),
       T(30,"Foundation inspection","Building Inspector",0,[{id:29}],true,"critical"),
       T(31,"Waterproofing / damp-proofing","Concrete Contractor",2,[{id:30}],false,"critical"),
-      T(32,"Foundation drainage (French drain / gravel)","Excavation Contractor",2,[{id:31}],false,"near"),
-      T(33,"Backfill","Excavation Contractor",2,[{id:32}],false,"critical"),
+      T(32,"Foundation drainage (French drain / gravel)","Excavation Contractor",1,[{id:31}],false,"near"),
+      T(33,"Backfill","Excavation Contractor",1,[{id:32}],false,"critical"),
       T(34,"Termite pre-treatment","Pest Control",1,[{id:33}],false,"near"),
       T(35,"Slab prep (vapor barrier, gravel, mesh/rebar)","Concrete Contractor",2,[{id:34}],false,"critical"),
-      T(36,"Under-slab plumbing rough-in","Plumber",2,[{id:35}],false,"critical"),
+      T(36,"Under-slab plumbing rough-in","Plumber",1,[{id:35}],false,"critical"),
       T(37,"Pour slab","Concrete Contractor",2,[{id:36}],false,"critical"),
       // ===== Phase 4: Framing & Dry-In =====
       T(38,"Sill plate / mudsill installation","Framing Crew",1,[{id:37}],false,"critical"),
-      T(39,"Floor framing / joists","Framing Crew",3,[{id:38}],false,"critical"),
+      T(39,"Floor framing / joists","Framing Crew",2,[{id:38}],false,"critical"),
       T(40,"Subfloor installation","Framing Crew",2,[{id:39}],false,"critical"),
-      T(41,"Wall framing (exterior & interior)","Framing Crew",5,[{id:40}],false,"critical"),
+      T(41,"Wall framing (exterior & interior)","Framing Crew",4,[{id:40}],false,"critical"),
       T(42,"Wall sheathing","Framing Crew",2,[{id:41}],false,"critical"),
-      T(43,"Roof framing / truss set","Framing Crew",4,[{id:42},{id:14}],false,"critical"),
-      T(44,"Roof sheathing","Framing Crew",3,[{id:43}],false,"critical"),
+      T(43,"Roof framing / truss set","Framing Crew",3,[{id:42},{id:14}],false,"critical"),
+      T(44,"Roof sheathing","Framing Crew",2,[{id:43}],false,"critical"),
       T(45,"Framing inspection","Building Inspector",0,[{id:44}],true,"critical"),
-      T(46,"House wrap / weather-resistive barrier","Framing Crew",2,[{id:45}],false,"critical"),
-      T(47,"Windows & exterior doors set (dry-in)","Framing Crew",3,[{id:46},{id:14}],false,"critical"),
+      T(46,"House wrap / weather-resistive barrier","Framing Crew",1,[{id:45}],false,"critical"),
+      T(47,"Windows & exterior doors set (dry-in)","Framing Crew",2,[{id:46},{id:14}],false,"critical"),
       // ===== Phase 5: Roofing =====
       T(48,"Roof underlayment","Roofing Contractor",1,[{id:44}],false,"critical"),
-      T(49,"Roofing material installation (shingle / metal / tile)","Roofing Contractor",4,[{id:48}],false,"critical"),
+      T(49,"Roofing material installation (shingle / metal / tile)","Roofing Contractor",3,[{id:48}],false,"critical"),
       T(50,"Roof flashing, vents, penetrations","Roofing Contractor",1,[{id:49}],false,"critical"),
       T(51,"Gutters (rough or final)","Gutter Contractor",1,[{id:50}],false,"normal"),
       // ===== Phase 6: MEP Rough-In =====
-      T(52,"Plumbing rough-in (supply/DWV, tub & shower set)","Plumber",5,[{id:47}],false,"critical"),
-      T(53,"Electrical rough-in (wiring, panel set)","Electrician",5,[{id:47}],false,"critical"),
-      T(54,"HVAC rough-in (ductwork, line sets, equipment set)","HVAC Contractor",5,[{id:47}],false,"critical"),
-      T(55,"Low-voltage rough-in (data, security, A/V)","Low-Voltage Contractor",2,[{id:47}],false,"normal"),
-      T(56,"Fireplace / chimney rough-in","Fireplace Installer",2,[{id:47}],false,"normal"),
+      T(52,"Plumbing rough-in (supply/DWV, tub & shower set)","Plumber",3,[{id:47}],false,"critical"),
+      T(53,"Electrical rough-in (wiring, panel set)","Electrician",3,[{id:47}],false,"critical"),
+      T(54,"HVAC rough-in (ductwork, line sets, equipment set)","HVAC Contractor",3,[{id:47}],false,"critical"),
+      T(55,"Low-voltage rough-in (data, security, A/V)","Low-Voltage Contractor",1,[{id:47}],false,"normal"),
+      T(56,"Fireplace / chimney rough-in","Fireplace Installer",1,[{id:47}],false,"normal"),
       T(57,"Rough-in inspections (plumbing, electrical, mechanical)","Building Inspector",0,[{id:52},{id:53},{id:54}],true,"critical"),
       // ===== Phase 7: Insulation & Air Sealing =====
       T(58,"Exterior flashing / sealant details completed","Siding Contractor",2,[{id:47},{id:50}],false,"near"),
-      T(59,"Insulation installation (batt / blown / spray foam)","Insulation Contractor",3,[{id:57},{id:58}],false,"critical"),
+      T(59,"Insulation installation (batt / blown / spray foam)","Insulation Contractor",2,[{id:57},{id:58}],false,"critical"),
       T(60,"Air sealing","Insulation Contractor",1,[{id:59}],false,"near"),
       T(61,"Insulation inspection","Building Inspector",0,[{id:60}],true,"critical"),
       // ===== Phase 8: Drywall =====
-      T(62,"Drywall hang","Drywall Contractor",5,[{id:61}],false,"critical"),
-      T(63,"Drywall tape & mud (multiple coats)","Drywall Contractor",5,[{id:62}],false,"critical"),
+      T(62,"Drywall hang","Drywall Contractor",4,[{id:61}],false,"critical"),
+      T(63,"Drywall tape & mud (multiple coats)","Drywall Contractor",4,[{id:62}],false,"critical"),
       T(64,"Drywall texture","Drywall Contractor",2,[{id:63}],false,"critical"),
-      T(65,"Sand & prime/seal coat","Drywall Contractor",2,[{id:64}],false,"critical"),
+      T(65,"Sand & prime/seal coat","Drywall Contractor",1,[{id:64}],false,"critical"),
       // ===== Phase 9: Exterior Finishes =====
-      T(66,"Siding installation","Siding Contractor",6,[{id:58}],false,"near"),
-      T(67,"Exterior trim (fascia, corner boards)","Siding Contractor",3,[{id:66}],false,"near"),
-      T(68,"Soffit & fascia","Siding Contractor",2,[{id:66}],false,"near"),
-      T(69,"Exterior masonry / stone veneer","Masonry Contractor",4,[{id:66}],false,"normal"),
-      T(70,"Exterior painting / staining","Painting Contractor",3,[{id:67},{id:68},{id:69}],false,"normal"),
+      T(66,"Siding installation","Siding Contractor",4,[{id:58}],false,"near"),
+      T(67,"Exterior trim (fascia, corner boards)","Siding Contractor",2,[{id:66}],false,"near"),
+      T(68,"Soffit & fascia","Siding Contractor",1,[{id:66}],false,"near"),
+      T(69,"Exterior masonry / stone veneer","Masonry Contractor",3,[{id:66}],false,"normal"),
+      T(70,"Exterior painting / staining","Painting Contractor",2,[{id:67},{id:68},{id:69}],false,"normal"),
       T(71,"Garage door installation","Garage Door Installer",1,[{id:66}],false,"normal"),
-      T(72,"Driveway / walkway concrete","Concrete Contractor",3,[{id:70}],false,"normal"),
+      T(72,"Driveway / walkway concrete","Concrete Contractor",2,[{id:70}],false,"normal"),
       // ===== Phase 10: Interior Finishes =====
-      T(81,"Tile work (baths, backsplash)","Tile Contractor",5,[{id:65}],false,"critical"),
-      T(79,"Interior painting (walls, ceilings, trim)","Painting Contractor",5,[{id:81}],false,"critical"),
-      T(73,"Interior trim (door/window casing, baseboard)","Trim Carpenter",5,[{id:79}],false,"critical"),
-      T(74,"Interior door hanging","Trim Carpenter",3,[{id:73}],false,"critical"),
-      T(75,"Stair rails / balusters","Trim Carpenter",2,[{id:73}],false,"near"),
-      T(76,"Cabinet installation","Cabinet Installer",4,[{id:73}],false,"critical"),
+      T(81,"Tile work (baths, backsplash)","Tile Contractor",4,[{id:65}],false,"critical"),
+      T(79,"Interior painting (walls, ceilings, trim)","Painting Contractor",4,[{id:81}],false,"critical"),
+      T(73,"Interior trim (door/window casing, baseboard)","Trim Carpenter",4,[{id:79}],false,"critical"),
+      T(74,"Interior door hanging","Trim Carpenter",2,[{id:73}],false,"critical"),
+      T(75,"Stair rails / balusters","Trim Carpenter",1,[{id:73}],false,"near"),
+      T(76,"Cabinet installation","Cabinet Installer",3,[{id:73}],false,"critical"),
       T(77,"Countertop templating","Countertop Fabricator",1,[{id:76}],false,"critical"),
       T(78,"Countertop fabrication & installation","Countertop Fabricator",1,[{id:77,lag:5}],false,"critical"),
-      T(80,"Flooring installation (hardwood/tile/LVP/carpet)","Flooring Contractor",5,[{id:73}],false,"critical"),
+      T(80,"Flooring installation (hardwood/tile/LVP/carpet)","Flooring Contractor",4,[{id:73}],false,"critical"),
       // ===== Phase 11: MEP Trim-Out & Fixtures =====
-      T(82,"Plumbing fixture trim-out (sinks, toilets, faucets, tub/shower)","Plumber",3,[{id:78},{id:80}],false,"critical"),
-      T(83,"Electrical trim-out (devices, switches, fixtures)","Electrician",3,[{id:80}],false,"critical"),
-      T(84,"HVAC trim-out (registers, grilles, thermostat, startup)","HVAC Contractor",2,[{id:80}],false,"critical"),
-      T(85,"Low-voltage device / equipment installation","Low-Voltage Contractor",2,[{id:80},{id:55}],false,"normal"),
+      T(82,"Plumbing fixture trim-out (sinks, toilets, faucets, tub/shower)","Plumber",2,[{id:78},{id:80}],false,"critical"),
+      T(83,"Electrical trim-out (devices, switches, fixtures)","Electrician",2,[{id:80}],false,"critical"),
+      T(84,"HVAC trim-out (registers, grilles, thermostat, startup)","HVAC Contractor",1,[{id:80}],false,"critical"),
+      T(85,"Low-voltage device / equipment installation","Low-Voltage Contractor",1,[{id:80},{id:55}],false,"normal"),
       T(86,"Appliance installation","Appliance Installer",1,[{id:82}],false,"near"),
       // ===== Phase 12: Final Site Work & Landscaping =====
-      T(87,"Final grading","Landscaper",2,[{id:72}],false,"near"),
-      T(88,"Landscaping / sod / planting","Landscaper",4,[{id:87}],false,"normal"),
-      T(89,"Final hardscape (patios, walkways not done earlier)","Landscaper",3,[{id:87}],false,"normal"),
+      T(87,"Final grading","Landscaper",1,[{id:72}],false,"near"),
+      T(88,"Landscaping / sod / planting","Landscaper",3,[{id:87}],false,"normal"),
+      T(89,"Final hardscape (patios, walkways not done earlier)","Landscaper",2,[{id:87}],false,"normal"),
       T(90,"Gutters (final, if deferred)","Gutter Contractor",1,[{id:70}],false,"normal"),
       T(91,"Exterior lighting finalization","Electrician",1,[{id:83}],false,"normal"),
       // ===== Phase 13: Closeout & Occupancy =====
       T(92,"Final construction cleaning","Cleaning Crew",2,[{id:82},{id:83},{id:84},{id:85},{id:86},{id:88},{id:89},{id:90},{id:91}],false,"near"),
       T(93,"Punch list walkthrough","General Contractor",0,[{id:92}],true,"critical"),
-      T(94,"Punch list corrections","General Contractor",3,[{id:93}],false,"critical"),
+      T(94,"Punch list corrections","General Contractor",2,[{id:93}],false,"critical"),
       T(95,"Final inspections (building, electrical, plumbing, mechanical)","Building Inspector",0,[{id:94}],true,"critical"),
       T(96,"Certificate of Occupancy issued","City / County",0,[{id:95}],true,"critical"),
       T(97,"Final owner/buyer walkthrough","General Contractor",0,[{id:96}],true,"critical"),
@@ -908,6 +961,7 @@
     theme: "light",
     activeTab: "schedule",
     viewMode: "clean", // "clean" = read-only + drag-to-reschedule only; "edit" = full editing controls
+    tradeFilter: "", // when set, the Gantt only shows this trade's tasks — for a scoped view/printout to hand a sub
     // multi-project bookkeeping
     nextProjectId: 2,
     activeProjectId: firstProject.id,
@@ -1168,6 +1222,11 @@
     c = cSafe;
     const dayWidth = ZOOM_WIDTH[state.zoom];
     const isClean = state.viewMode === "clean";
+    // A trade filter narrows which rows/bars render — the CPM math above still ran against every
+    // task, so filtered-out tasks still correctly hold up anything that depends on them.
+    const visibleTasks = state.tradeFilter
+      ? state.tasks.filter(t => (t.trade || "").trim().toLowerCase() === state.tradeFilter.toLowerCase())
+      : state.tasks;
     const infoWidth = isClean ? 240 : (28+168+128+110+40+92+96+48+26+88+58+22 + 4*11 + 12); // exact sum of col widths + gaps + padding
     const gridStart = c.projectStart;
     const gridEnd = addCalDays(c.projectFinishDate, 6);
@@ -1219,7 +1278,7 @@
 
     // ---- body ----
     body.style.width = (infoWidth + timelineWidth) + "px";
-    body.style.height = (state.tasks.length * ROW_H) + "px";
+    body.style.height = (Math.max(1, visibleTasks.length) * ROW_H) + "px";
 
     const bg = document.createElement("div");
     bg.className = "bg-layer";
@@ -1251,10 +1310,16 @@
     // rows — displayed in chronological (computed early-start) order, not insertion order,
     // so a newly added task lands where it actually falls in the schedule rather than at the bottom.
     const pixelInfo = new Map();
-    const orderedTasks = state.tasks
+    const orderedTasks = visibleTasks
       .map((t, i) => ({ t, i, es: c.byId.get(t.id) ? c.byId.get(t.id).es : Infinity }))
       .sort((a, b) => (a.es - b.es) || (a.i - b.i))
       .map(x => x.t);
+    if (!orderedTasks.length) {
+      const msg = document.createElement("div");
+      msg.style.cssText = `position:absolute; left:${infoWidth + 12}px; top:8px; color:var(--muted);`;
+      msg.textContent = `No tasks match trade "${state.tradeFilter}" — clear the filter to see everything.`;
+      body.appendChild(msg);
+    }
     orderedTasks.forEach((t, idx) => {
       const r = c.byId.get(t.id);
       const row = document.createElement("div");
@@ -1268,6 +1333,13 @@
       const floatNum = r ? `${r.float}d` : "–";
       const floatIcon = isCrit ? " ✕" : isNear ? " ⚠" : "";
       const company = lookupCompany(state.subs, t.trade);
+      const tradeText = (t.trade || "").trim();
+      const hasSubEntry = tradeText && state.subs.some(s => (s.trade || "").trim().toLowerCase() === tradeText.toLowerCase());
+      const companyCell = company
+        ? `<span class="col-company" title="Company: ${escapeAttr(company)}">${escapeAttr(company)}</span>`
+        : (tradeText && !hasSubEntry)
+          ? `<button type="button" class="col-company quickadd" data-action="quickadd-trade" data-id="${t.id}" title="No entry for &quot;${escapeAttr(tradeText)}&quot; in your Subcontractors directory — click to add it">+ Add &quot;${escapeAttr(tradeText)}&quot;</button>`
+          : `<span class="col-company empty" title="${tradeText ? 'No company on file yet for this trade — add one on the Subcontractors tab' : 'No trade set for this task yet'}">—</span>`;
       const forceVal = t.forceStatus || "";
       if (isClean) {
         const subLine = company ? `${t.trade} — ${company}` : (t.trade || "");
@@ -1283,7 +1355,7 @@
         <span class="col-id">#${t.id}</span>
         <input class="col-name" type="text" value="${escapeAttr(t.name)}" data-field="name" data-id="${t.id}">
         <input class="col-trade" type="text" list="tradesDatalist" value="${escapeAttr(t.trade||"")}" data-field="trade" data-id="${t.id}">
-        <span class="col-company ${company?'':'empty'}" title="${company ? 'Company: '+escapeAttr(company) : 'No company on file for this trade — add one on the Subcontractors tab'}">${escapeAttr(company || "—")}</span>
+        ${companyCell}
         <input class="col-dur" type="number" min="0" value="${t.milestone?0:t.duration}" ${t.milestone?"disabled":""} data-field="duration" data-id="${t.id}">
         <input class="col-pred" type="text" value="${escapeAttr(predToStr(t.predecessors))}" data-field="predecessors" data-id="${t.id}">
         <select class="col-status" data-field="status" data-id="${t.id}">
@@ -1445,6 +1517,22 @@
   function renderTradesDatalist() {
     const dl = document.getElementById("tradesDatalist");
     dl.innerHTML = state.subs.map(s => `<option value="${escapeAttr(s.trade)}">`).join("");
+    renderTradeFilterOptions();
+  }
+
+  // Union of every trade name in the subs directory and on tasks, so a trade used on a task but
+  // not yet added to the directory can still be filtered/printed on its own.
+  function renderTradeFilterOptions() {
+    const sel = document.getElementById("tradeFilterSelect");
+    const names = new Set();
+    state.subs.forEach(s => { const t = (s.trade || "").trim(); if (t) names.add(t); });
+    state.tasks.forEach(t => { const tr = (t.trade || "").trim(); if (tr) names.add(tr); });
+    const sorted = [...names].sort((a, b) => a.localeCompare(b));
+    const current = state.tradeFilter;
+    sel.innerHTML = `<option value="">All trades</option>` +
+      sorted.map(n => `<option value="${escapeAttr(n)}" ${n===current?"selected":""}>${escapeAttr(n)}</option>`).join("");
+    // If the previously selected trade no longer exists anywhere, fall back to "All trades".
+    if (current && !sorted.includes(current)) { state.tradeFilter = ""; sel.value = ""; }
   }
 
   function renderSubs() {
@@ -1455,6 +1543,7 @@
     }
     body.innerHTML = state.subs.map(s => `
       <div class="subs-row" data-sub-id="${s.id}">
+        <span class="sc-view"><button data-subaction="view" data-sid="${s.id}" title="View everything on file for ${escapeAttr(s.trade)} — contact, scope, tasks, and cost">👁 View</button></span>
         <span class="sc-trade"><input type="text" data-sfield="trade" data-sid="${s.id}" value="${escapeAttr(s.trade)}"></span>
         <span class="sc-company"><input type="text" data-sfield="company" data-sid="${s.id}" value="${escapeAttr(s.company)}"></span>
         <span class="sc-contact"><input type="text" data-sfield="contact" data-sid="${s.id}" value="${escapeAttr(s.contact)}"></span>
@@ -1712,6 +1801,11 @@
     markDirty();
   });
   document.getElementById("subsBody").addEventListener("click", e => {
+    const viewBtn = e.target.closest("button[data-subaction='view']");
+    if (viewBtn) {
+      openSubDetailModal(Number(viewBtn.dataset.sid));
+      return;
+    }
     const delBtn = e.target.closest("button[data-subaction='del']");
     if (delBtn) {
       const id = Number(delBtn.dataset.sid);
@@ -1772,6 +1866,84 @@
       closeModal();
     });
   }
+
+  // Everything on file for one subcontractor in a single view: contact info, scope, every task
+  // assigned to their trade (with computed dates/status/flag), and their rolled-up cost — so you
+  // don't have to cross-reference the Schedule and Budget tabs by hand.
+  function openSubDetailModal(subId) {
+    const sub = state.subs.find(s => s.id === subId);
+    if (!sub) return;
+    const c = lastCompute;
+    const rows = state.tasks
+      .filter(t => (t.trade || "").trim().toLowerCase() === (sub.trade || "").trim().toLowerCase())
+      .map(t => ({ t, r: c ? c.byId.get(t.id) : null }))
+      .sort((a, b) => (a.r ? a.r.es : Infinity) - (b.r ? b.r.es : Infinity));
+
+    let totalEst = 0, totalActual = 0;
+    for (const { t } of rows) { totalEst += t.estCost || 0; totalActual += t.actualCost || 0; }
+    const totalVar = totalActual - totalEst;
+
+    const taskRows = rows.length ? rows.map(({ t, r }) => {
+      const when = r && r.startDate
+        ? (t.milestone ? fmtDate(parseISO(r.startDate)) : `${fmtDate(parseISO(r.startDate))} – ${fmtDate(parseISO(r.endDate))}`)
+        : "Date TBD";
+      const es = effectiveStatus(t, r, state.threshold);
+      const flagLabel = es.isCrit ? "Critical" : es.isNear ? "Near-crit" : "Normal";
+      const flagColor = es.isCrit ? "var(--critical)" : es.isNear ? "#b5790f" : "var(--text-secondary)";
+      const statusLabel = t.status === "done" ? "Done" : t.status === "in-progress" ? "Active" : "Pending";
+      return `<div class="detail-task-row">
+        <span class="dt-name">${escapeAttr(t.name)}${t.milestone ? " ◆" : ""}</span>
+        <span class="dt-when">${when}</span>
+        <span class="dt-status">${statusLabel}${t.percent ? ` · ${t.percent}%` : ""}</span>
+        <span class="dt-flag" style="color:${flagColor}">${flagLabel}</span>
+      </div>`;
+    }).join("") : `<div class="modal-hint">No tasks currently assigned to this trade.</div>`;
+
+    const costSection = (totalEst || totalActual) ? `
+      <div class="modal-sub" style="margin-top:14px;"><b>Cost</b></div>
+      <div class="detail-cost-row">
+        <span>Est ${fmtMoney(totalEst)}</span>
+        <span>Actual ${fmtMoney(totalActual)}</span>
+        <span style="color:${totalVar > 0 ? 'var(--critical)' : totalVar < 0 ? 'var(--good)' : 'inherit'}">${totalVar >= 0 ? "+" : ""}${fmtMoney(totalVar)} variance</span>
+      </div>` : "";
+
+    const contactLine = [
+      sub.contact ? escapeAttr(sub.contact) : null,
+      sub.phone ? `<a href="tel:${escapeAttr(sub.phone.replace(/[^0-9+]/g, ""))}">${escapeAttr(sub.phone)}</a>` : null,
+      sub.email ? `<a href="mailto:${escapeAttr(sub.email)}">${escapeAttr(sub.email)}</a>` : null,
+    ].filter(Boolean).join(" · ") || "No contact info on file yet";
+
+    openModal(`
+      <h3>${escapeAttr(sub.trade)}</h3>
+      <div class="modal-sub">${sub.company ? escapeAttr(sub.company) : "No company on file"}</div>
+      <div class="modal-sub detail-contact">${contactLine}</div>
+      ${sub.notes ? `<div class="modal-sub"><b>Notes:</b> ${escapeAttr(sub.notes)}</div>` : ""}
+      <div class="modal-sub" style="margin-top:14px;"><b>Scope of work</b></div>
+      <div class="modal-sub">${sub.scopeOfWork ? escapeAttr(sub.scopeOfWork) : "Not set yet — use Edit scope below to add one."}</div>
+      <div class="modal-sub" style="margin-top:14px;"><b>Tasks (${rows.length})</b></div>
+      <div class="detail-task-list">${taskRows}</div>
+      ${costSection}
+      ${sub.initialEmailSentAt ? `<div class="modal-hint">Initial email opened ${escapeAttr(sub.initialEmailSentAt)}</div>` : ""}
+      <div class="modal-actions">
+        <button class="ghost" id="mClose">Close</button>
+        <button class="ghost" id="mViewScope">📋 Edit scope</button>
+        <button class="ghost" id="mViewEmail" ${sub.email ? "" : "disabled"}>✉ Email</button>
+        <button class="primary" id="mViewInitial" ${sub.email ? "" : "disabled"}>📨 Initial</button>
+      </div>
+    `);
+    document.getElementById("mClose").addEventListener("click", closeModal);
+    document.getElementById("mViewScope").addEventListener("click", () => openScopeModal(sub.id));
+    document.getElementById("mViewEmail").addEventListener("click", () => { if (sub.email) openMailto(buildSubEmail(sub)); });
+    document.getElementById("mViewInitial").addEventListener("click", () => {
+      if (!sub.email) return;
+      openMailto(buildInitialEmail(sub));
+      sub.initialEmailSentAt = toISO(new Date());
+      renderSubs();
+      markDirty();
+      closeModal();
+    });
+  }
+
   // Steps through every sub with an email on file, one at a time — mailto can only open one
   // compose window per click, so this is the practical substitute for "send to everyone at once."
   document.getElementById("sendInitialSeqBtn").addEventListener("click", () => {
@@ -1937,6 +2109,14 @@
     renderGantt(lastCompute);
   });
   document.getElementById("depToggle").addEventListener("change", e => { state.showDeps = e.target.checked; renderGantt(lastCompute); });
+  document.getElementById("tradeFilterSelect").addEventListener("change", e => {
+    state.tradeFilter = e.target.value;
+    renderGantt(lastCompute);
+  });
+  document.getElementById("printBtn").addEventListener("click", () => {
+    closeModal();
+    window.print();
+  });
 
   // Scrolls the gantt horizontally so "today" sits near the left edge instead of opening on day one
   // of a schedule that might be well underway. Only called at specific "fresh view" moments (below) —
@@ -1972,6 +2152,12 @@
     const task = state.tasks.find(t => t.id === id); if (!task) return;
     if (field === "predecessors") {
       const newPreds = parsePredInput(el.value);
+      // Catch typos here (e.g. a transposed digit) instead of letting them surface later as a vague
+      // "circular or missing dependency" error once the schedule fails to compute.
+      const selfRef = newPreds.find(p => p.id === task.id);
+      const badPred = !selfRef && newPreds.find(p => !state.tasks.some(t => t.id === p.id));
+      if (selfRef) { alert("A task can't be its own predecessor."); el.value = predToStr(task.predecessors); return; }
+      if (badPred) { alert("No task with ID #" + badPred.id + " exists — check for a typo."); el.value = predToStr(task.predecessors); return; }
       // Dropping down to zero predecessors turns this into a root task, whose start is driven by
       // leadDays instead of a predecessor's finish date. Without this, it would jump back to the
       // project start date; instead, bank its current computed start so it stays right where it was.
@@ -1990,6 +2176,18 @@
     renderAll();
   });
   document.getElementById("ganttBody").addEventListener("click", e => {
+    const quickAddBtn = e.target.closest("button[data-action='quickadd-trade']");
+    if (quickAddBtn) {
+      const task = state.tasks.find(t => t.id === Number(quickAddBtn.dataset.id));
+      const tradeName = task ? (task.trade || "").trim() : "";
+      if (!tradeName) return;
+      // Re-check for a race: another row for the same trade may have already added it since this button rendered.
+      const already = state.subs.some(s => (s.trade || "").trim().toLowerCase() === tradeName.toLowerCase());
+      if (!already) state.subs.push(S(state.nextSubId++, tradeName));
+      renderSubs(); renderTradesDatalist(); renderGantt(lastCompute);
+      markDirty();
+      return;
+    }
     const btn = e.target.closest("button[data-action='del']"); if (!btn) return;
     const id = Number(btn.dataset.id);
     if (!confirm("Delete this task? Any tasks depending on it will need new predecessors.")) return;
